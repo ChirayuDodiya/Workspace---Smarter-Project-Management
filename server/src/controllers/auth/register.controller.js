@@ -7,16 +7,20 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 
 const register = asyncHandler(async (req, res) => {
   const { name, email, password, password_confirmation } = req.body;
+  email = email.trim().toLowerCase();
 
-  if (!name || !email || !password || !password_confirmation) 
-  {
+  if (!name || !email || !password || !password_confirmation) {
     return errorResponse(res, 'All fields are required', 400);
   }
 
-  //TODO:check email format and also verify it via sending otp
-
   if (password !== password_confirmation) {
     return errorResponse(res, 'password and password_confirmation does not match', 400);
+  }
+
+  const existingUser = await prisma.users.findUnique({ where: { email } });
+
+  if (existingUser) {
+    return errorResponse(res, 'Email already registered', 409);
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);

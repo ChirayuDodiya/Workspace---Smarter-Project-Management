@@ -7,12 +7,9 @@
   "scripts": {
     "dev": "nodemon index.js",
     "prod": "node index.js",
-
     "postinstall": "prisma generate",
-    
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-        
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull",
     "prisma:push": "prisma db push",
@@ -29,7 +26,9 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mariadb": "^3.5.2",
-    "prisma": "^7.8.0"
+    "prisma": "^7.8.0",
+    "slugify": "^1.6.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.8.0",

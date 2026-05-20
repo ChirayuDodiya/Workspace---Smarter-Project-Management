@@ -14,7 +14,9 @@ const authMiddleware = async (req, res, next) => {
     } else {
       return errorResponse(res, 'unauthorized access', 401);
     }
-  } catch (error) {}
+  } catch (error) {
+    return errorResponse(res, 'internal server error', 500);
+  }
 };
 
 export { authMiddleware };

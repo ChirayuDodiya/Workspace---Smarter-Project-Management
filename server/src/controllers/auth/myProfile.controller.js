@@ -6,17 +6,17 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import { serializeUser } from '../../serializers/user.serializer.js';
 
 const myProfile = asyncHandler(async (req, res) => {
-    const user = await prisma.users.findUnique({
-        where: { id: req.user.id },
-    });
+  const user = await prisma.users.findUnique({
+    where: { id: req.user.id },
+  });
 
-    if (!user) {
-        return errorResponse(res, 'User not found', 404);
-    }
+  if (!user) {
+    return errorResponse(res, 'User not found', 404);
+  }
 
-    const serializedUser = serializeUser(user);
+  const serializedUser = serializeUser(user);
 
-    return successResponse(res, serializedUser, 'User profile fetched successfully', 200);
+  return successResponse(res, serializedUser, 'User profile fetched successfully', 200);
 });
 
 export { myProfile };

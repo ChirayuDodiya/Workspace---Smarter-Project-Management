@@ -6,7 +6,7 @@ const serializeComment = (comment) => {
     body: comment.body,
     user: serializeUser(comment.user),
     parent_id: comment.parent_id,
-    created_at: comment.createdAt,
+    created_at: comment.created_at,
   };
 };
 

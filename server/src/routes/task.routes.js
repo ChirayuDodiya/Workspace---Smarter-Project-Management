@@ -9,6 +9,8 @@ import {
   assignTask,
   reorderTasks,
   deleteTask,
+  listTaskComments,
+  createTaskComment,
 } from '../controllers/task/task.controller.js';
 import {
   validateUpdateTask,
@@ -16,6 +18,7 @@ import {
   validateAssignTask,
   validateReorderTasks,
 } from '../validators/task.validator.js';
+import { validateCreateComment } from '../validators/comment.validator.js';
 import { loadTaskAndProject } from '../loaders/taskAndProject.loader.js';
 const router = express.Router();
 
@@ -49,5 +52,15 @@ router.patch(
 router.post('/reorder', authMiddleware, validateReorderTasks, reorderTasks);
 
 router.delete('/:id', authMiddleware, loadTaskAndProject, TaskPolicy.canDelete, deleteTask);
+
+router.get('/:id/comments', authMiddleware, loadTaskAndProject, listTaskComments);
+
+router.post(
+  '/:id/comments',
+  authMiddleware,
+  loadTaskAndProject,
+  validateCreateComment,
+  createTaskComment
+);
 
 export default router;

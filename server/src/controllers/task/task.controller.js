@@ -2,6 +2,8 @@ import { successResponse, errorResponse } from '../../utils/response.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import prisma from '../../prisma/client.js';
 import { serializeTask } from '../../serializers/task.serializer.js';
+import { serializeComment } from '../../serializers/comment.serializer.js';
+import { createActivityLog } from '../../services/activity.service.js';
 
 // PUT: /api/v1/tasks/{id} — Update task
 const updateTask = asyncHandler(async (req, res) => {
@@ -139,4 +141,88 @@ const deleteTask = asyncHandler(async (req, res) => {
   return successResponse(res, null, 'Task deleted successfully');
 });
 
-export { updateTask, changeTaskStatus, assignTask, reorderTasks, deleteTask };
+// GET: /api/v1/tasks/{id}/comments — Threaded list (parent + replies nested)
+const listTaskComments = asyncHandler(async (req, res) => {
+  const task = req.task;
+  const taskId = task.id;
+
+  const comments = await prisma.comments.findMany({
+    where: { task_id: taskId, deleted_at: null },
+    include: { users: true },
+    orderBy: { created_at: 'asc' },
+  });
+
+  const serializedComments = comments.map((c) => ({
+    ...serializeComment({ ...c, user: c.users }),
+    replies: [],
+  }));
+
+  const commentMap = {};
+  serializedComments.forEach((c) => {
+    commentMap[c.id] = c;
+  });
+
+  const rootComments = [];
+  serializedComments.forEach((c) => {
+    if (c.parent_id) {
+      const parent = commentMap[c.parent_id];
+      if (parent) {
+        parent.replies.push(c);
+      } else {
+        rootComments.push(c);
+      }
+    } else {
+      rootComments.push(c);
+    }
+  });
+
+  return successResponse(res, rootComments);
+});
+
+// POST: /api/v1/tasks/{id}/comments — Add comment (with optional parent_id for replies)
+const createTaskComment = asyncHandler(async (req, res) => {
+  const task = req.task;
+  const taskId = task.id;
+  const { body, parent_id } = req.body;
+
+  if (parent_id) {
+    const parentComment = await prisma.comments.findFirst({
+      where: { id: parent_id, task_id: taskId, deleted_at: null },
+    });
+
+    if (!parentComment) {
+      return errorResponse(
+        res,
+        'Parent comment not found or does not belong to this task',
+        400
+      );
+    }
+  }
+
+  const comment = await prisma.comments.create({
+    data: {
+      task_id: taskId,
+      user_id: req.user.id,
+      body,
+      parent_id,
+    },
+    include: { users: true },
+  });
+
+  return successResponse(
+    res,
+    serializeComment({ ...comment, user: comment.users }),
+    'Comment added successfully',
+    201
+  );
+});
+
+export {
+  updateTask,
+  changeTaskStatus,
+  assignTask,
+  reorderTasks,
+  deleteTask,
+  listTaskComments,
+  createTaskComment,
+};

@@ -18,11 +18,11 @@ const updateComment = asyncHandler(async (req, res) => {
   if (!comment) {
     return errorResponse(res, 'Comment not found', 404);
   }
-  
+
   if (comment.user_id !== req.user.id) {
     return errorResponse(res, 'You are not authorized to edit this comment', 403);
   }
-  
+
   const createdAtTime = new Date(comment.created_at || comment.createdAt).getTime();
   const elapsedMinutes = (Date.now() - createdAtTime) / 1000 / 60;
   if (elapsedMinutes > 15) {
@@ -59,7 +59,7 @@ const deleteComment = asyncHandler(async (req, res) => {
   if (!comment) {
     return errorResponse(res, 'Comment not found', 404);
   }
-  
+
   const isOwner = comment.user_id === req.user.id;
   const isAdmin = req.user.role === 'admin';
   if (!isOwner && !isAdmin) {

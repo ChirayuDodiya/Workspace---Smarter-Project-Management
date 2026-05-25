@@ -191,11 +191,7 @@ const createTaskComment = asyncHandler(async (req, res) => {
     });
 
     if (!parentComment) {
-      return errorResponse(
-        res,
-        'Parent comment not found or does not belong to this task',
-        400
-      );
+      return errorResponse(res, 'Parent comment not found or does not belong to this task', 400);
     }
   }
 

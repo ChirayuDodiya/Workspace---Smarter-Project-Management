@@ -56,9 +56,4 @@ const validateUpdateComment = (req, res, next) => {
   }
 };
 
-export {
-  validateCreateComment,
-  validateUpdateComment,
-  commentCreateSchema,
-  commentUpdateSchema,
-};
+export { validateCreateComment, validateUpdateComment, commentCreateSchema, commentUpdateSchema };

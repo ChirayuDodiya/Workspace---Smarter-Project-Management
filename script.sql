@@ -80,6 +80,16 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     CONSTRAINT fk_activity_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- composite indexes
+CREATE INDEX idx_projects_deleted_status ON projects(deleted_at, status);
+CREATE INDEX idx_projects_deleted_owner ON projects(deleted_at, owner_id);
+
+CREATE INDEX idx_tasks_project_deleted_status ON tasks(project_id, deleted_at, status);
+CREATE INDEX idx_tasks_deleted_assigned_status ON tasks(deleted_at, assigned_to, status);
+CREATE INDEX idx_tasks_deleted_status_priority ON tasks(deleted_at, status, priority);
+
+CREATE INDEX idx_comments_task_deleted ON comments(task_id, deleted_at);
+
 
 -- seeder generator
 INSERT INTO users (name, email, password, role) VALUES

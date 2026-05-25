@@ -37,6 +37,7 @@ model comments {
   @@index([parent_id], map: "fk_comment_parent")
   @@index([task_id], map: "fk_comment_task")
   @@index([user_id], map: "fk_comment_user")
+  @@index([task_id, deleted_at], map: "idx_comments_task_deleted")
 }
 
 model projects {
@@ -56,6 +57,8 @@ model projects {
   tasks       tasks[]
 
   @@index([owner_id], map: "fk_project_owner")
+  @@index([deleted_at, status], map: "idx_projects_deleted_status")
+  @@index([deleted_at, owner_id], map: "idx_projects_deleted_owner")
 }
 
 model tasks {
@@ -79,6 +82,9 @@ model tasks {
 
   @@index([assigned_to], map: "fk_task_assigned_user")
   @@index([project_id], map: "fk_task_project")
+  @@index([project_id, deleted_at, status], map: "idx_tasks_project_deleted_status")
+  @@index([deleted_at, assigned_to, status], map: "idx_tasks_deleted_assigned_status")
+  @@index([deleted_at, status, priority], map: "idx_tasks_deleted_status_priority")
 }
 
 model users {

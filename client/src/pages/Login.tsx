@@ -108,6 +108,7 @@ export function Login() {
             error={emailError}
             onChange={handleEmailChange}
             onBlur={() => validateEmailField(email)}
+            autoComplete="email"
           />
 
           <InputField
@@ -119,6 +120,7 @@ export function Login() {
             error={passwordError}
             onChange={handlePasswordChange}
             onBlur={() => validatePasswordField(password)}
+            autoComplete="current-password"
           />
 
           {/* Form Action Button */}

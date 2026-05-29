@@ -11,6 +11,7 @@ function InputField({
   required,
   onChange,
   onBlur,
+  autoComplete,
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,6 +37,7 @@ function InputField({
           placeholder={placeholder}
           onChange={onChange}
           onBlur={onBlur}
+          autoComplete={autoComplete}
           className={`w-full px-4 py-3 bg-[#121212] border-2 rounded-xl text-white placeholder-gray-600 outline-none transition-all duration-200 ${
             error
               ? 'border-red-500 focus:border-red-400'

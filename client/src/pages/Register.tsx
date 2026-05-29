@@ -143,6 +143,7 @@ export function Register() {
             required
             onChange={handleNameChange}
             onBlur={() => validateNameField(name)}
+            autoComplete="name"
           />
 
           <InputField
@@ -155,6 +156,7 @@ export function Register() {
             required
             onChange={handleEmailChange}
             onBlur={() => validateEmailField(email)}
+            autoComplete="email"
           />
 
           <InputField
@@ -167,6 +169,7 @@ export function Register() {
             required
             onChange={handlePasswordChange}
             onBlur={() => validatePasswordField(password)}
+            autoComplete="new-password"
           />
 
           <InputField
@@ -179,6 +182,7 @@ export function Register() {
             required
             onChange={handleConfirmPasswordChange}
             onBlur={() => validateConfirmPasswordField(confirmPassword)}
+            autoComplete="new-password"
           />
 
           {/* Form Action Button */}

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -13,10 +14,7 @@ function App() {
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
-          <Route
-            path="/"
-            element={<h1 className="text-white text-center text-3xl m-4">Dashboard</h1>}
-          />
+          <Route path="/" element={<Dashboard />} />
 
           {/* Catch-all redirects back to root */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -342,6 +342,13 @@ const projectStats = asyncHandler(async (req, res) => {
 
 // GET: /api/v1/projects/{slug}/tasks — List with filtering (status, priority, assigned_to), sorting, pagination
 const listTasks = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+  const project = await getProjectBySlug(slug);
+
+  if (!project) {
+    return errorResponse(res, 'Project not found', 404);
+  }
+
   const {
     status,
     priority,
@@ -378,6 +385,7 @@ const listTasks = asyncHandler(async (req, res) => {
   }
 
   const where = {
+    project_id: project.id,
     deleted_at: null,
   };
 

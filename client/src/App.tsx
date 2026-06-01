@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ProjectDetail from './pages/ProjectDetail';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/projects/:slug" element={<ProjectDetail />} />
 
           {/* Catch-all redirects back to root */}
           <Route path="*" element={<Navigate to="/" replace />} />

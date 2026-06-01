@@ -12,6 +12,7 @@ const listProjects = asyncHandler(async (req, res) => {
   const {
     status,
     owner,
+    search,
     page = 1,
     per_page = 20,
     sortBy = 'created_at',
@@ -37,6 +38,12 @@ const listProjects = asyncHandler(async (req, res) => {
     where.status = status;
   }
 
+  if (search) {
+    where.name = {
+      contains: search,
+    };
+  }
+
   if (owner) {
     const ownerId = Number(owner);
     if (Number.isNaN(ownerId) || ownerId <= 0) {
@@ -49,14 +56,53 @@ const listProjects = asyncHandler(async (req, res) => {
     prisma.projects.count({ where }),
     prisma.projects.findMany({
       where,
-      include: { users: true },
+      include: {
+        users: true,
+      },
       orderBy: { [orderField]: orderDirection },
       skip: (pageNumber - 1) * pageSize,
       take: pageSize,
     }),
   ]);
 
-  const serialized = projects.map((project) => serializeProject(project));
+  const projectIds = projects.map((p) => p.id);
+  const taskCounts =
+    projectIds.length > 0
+      ? await prisma.tasks.groupBy({
+          by: ['project_id', 'status'],
+          where: {
+            project_id: { in: projectIds },
+            deleted_at: null,
+          },
+          _count: {
+            _all: true,
+          },
+        })
+      : [];
+
+  const statsMap = {};
+  projectIds.forEach((id) => {
+    statsMap[id] = { total: 0, completed: 0 };
+  });
+
+  taskCounts.forEach((item) => {
+    const pId = item.project_id;
+    const count = item._count._all;
+    if (statsMap[pId]) {
+      statsMap[pId].total += count;
+      if (item.status === 'done') {
+        statsMap[pId].completed += count;
+      }
+    }
+  });
+
+  const serialized = projects.map((project) => {
+    const stats = statsMap[project.id] || { total: 0, completed: 0 };
+    const serializedProject = serializeProject(project);
+    serializedProject.task_count = stats.total;
+    serializedProject.completed_tasks = stats.completed;
+    return serializedProject;
+  });
 
   return paginatedResponse(res, serialized, {
     page: pageNumber,

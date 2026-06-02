@@ -355,8 +355,8 @@ const listTasks = asyncHandler(async (req, res) => {
     assigned_to,
     page = 1,
     per_page = 20,
-    sortBy = 'created_at',
-    order = 'desc',
+    sortBy = 'sort_order',
+    order = 'asc',
   } = req.query;
 
   const pageNumber = Math.max(Number(page) || 1, 1);

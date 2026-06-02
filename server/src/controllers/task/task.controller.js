@@ -9,7 +9,7 @@ import { createActivityLog } from '../../services/activity.service.js';
 const updateTask = asyncHandler(async (req, res) => {
   const task = req.task;
   const taskId = task.id;
-  const updateData = { ...req.body };
+  const updateData = { ...req.body, updated_at: new Date() };
 
   if (updateData.status && updateData.status !== task.status) {
     const statuses = ['todo', 'in_progress', 'in_review', 'done'];
@@ -77,7 +77,7 @@ const changeTaskStatus = asyncHandler(async (req, res) => {
     }
   }
 
-  const updateData = { status };
+  const updateData = { status, updated_at: new Date() };
   if (actual_hours !== undefined) {
     updateData.actual_hours = actual_hours;
   }
@@ -121,7 +121,7 @@ const assignTask = asyncHandler(async (req, res) => {
 
   const updatedTask = await prisma.tasks.update({
     where: { id: taskId },
-    data: { assigned_to },
+    data: { assigned_to, updated_at: new Date() },
     include: { users: true },
   });
 

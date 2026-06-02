@@ -1,8 +1,11 @@
+import { useSortable } from '@dnd-kit/react/sortable';
+import { CollisionPriority } from '@dnd-kit/abstract';
 import type { ProjectTask } from '../types';
 import { formatDate } from '../utils/formatDate';
 
 interface TaskCardProps {
   task: ProjectTask;
+  index: number;
 }
 
 const isOverdue = (task: ProjectTask) => {
@@ -17,7 +20,14 @@ const isOverdue = (task: ProjectTask) => {
   return due < today;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, index }: TaskCardProps) {
+  const { ref, isDragging } = useSortable({
+    id: task.id,
+    index,
+    group: task.status,
+    collisionPriority: CollisionPriority.High,
+  });
+
   const overdue = isOverdue(task);
   const formattedDueDate = formatDate(task.due_date || null);
   const assigneeName = task.assigned_to?.name || 'Unassigned';
@@ -34,7 +44,11 @@ export function TaskCard({ task }: TaskCardProps) {
 
   return (
     <div
-      className={`relative p-4 bg-[#1a1a1a] rounded-2xl border transition-all duration-200 select-none text-left ${
+      ref={ref}
+      id={`task-card-${task.id}`}
+      className={`relative p-4 bg-[#1a1a1a] rounded-2xl border transition-all duration-200 select-none text-left cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-30' : ''
+      } ${
         overdue
           ? 'border-red-500/80 shadow-md shadow-red-500/5'
           : 'border-[#333] hover:border-emerald-500/40'

@@ -4,10 +4,13 @@ import api from '../services/api';
 import type { Project } from '../types';
 import ProjectDetailsCard from '../components/ProjectDetailsCard';
 import KanbanBoard from '../components/KanbanBoard';
+import AddTaskModal from '../components/AddTaskModal';
 
 export function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<Project | null>(null);
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [boardKey, setBoardKey] = useState(0);
 
   // Fetch project details
   useEffect(() => {
@@ -53,6 +56,7 @@ export function ProjectDetail() {
           {/* Add Task Button */}
           <button
             type="button"
+            onClick={() => setIsAddTaskModalOpen(true)}
             className="self-end h-10 px-6 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-xl font-medium tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
           >
             Add Task
@@ -60,7 +64,17 @@ export function ProjectDetail() {
         </div>
 
         {/* Kanban Board */}
-        {slug && <KanbanBoard slug={slug} />}
+        {slug && <KanbanBoard key={boardKey} slug={slug} />}
+
+        {/* Add Task Modal */}
+        {slug && (
+          <AddTaskModal
+            isOpen={isAddTaskModalOpen}
+            onClose={() => setIsAddTaskModalOpen(false)}
+            onTaskCreated={() => setBoardKey((prev) => prev + 1)}
+            slug={slug}
+          />
+        )}
       </div>
     </main>
   );

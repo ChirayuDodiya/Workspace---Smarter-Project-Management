@@ -52,3 +52,48 @@ export const validateConfirmPassword = (confirm: string, passwordVal: string): s
   }
   return '';
 };
+
+export const decimalRegex = /^\d{1,4}(\.\d)?$/;
+
+export const validateAddTaskForm = (data: {
+  title: string;
+  status: 'todo' | 'in_progress' | 'in_review' | 'done';
+  estimatedHours: string;
+  actualHours: string;
+}) => {
+  const errors: { title?: string; estimatedHours?: string; actualHours?: string } = {};
+
+  if (!data.title.trim()) {
+    errors.title = 'Task title is required.';
+  } else if (data.title.trim().length < 3) {
+    errors.title = 'Task title must be at least 3 characters.';
+  } else if (data.title.trim().length > 255) {
+    errors.title = 'Task title cannot exceed 255 characters.';
+  }
+
+  if (data.estimatedHours) {
+    const parsedEst = parseFloat(data.estimatedHours);
+    if (isNaN(parsedEst) || parsedEst <= 0) {
+      errors.estimatedHours = 'Estimated hours must be a positive number.';
+    } else if (!decimalRegex.test(data.estimatedHours)) {
+      errors.estimatedHours =
+        'Estimated hours must be a valid decimal (max 9999.9, up to 1 decimal place).';
+    }
+  }
+
+  if (data.status === 'done') {
+    if (!data.actualHours) {
+      errors.actualHours = 'Actual hours are required when status is done.';
+    } else {
+      const parsedAct = parseFloat(data.actualHours);
+      if (isNaN(parsedAct) || parsedAct <= 0) {
+        errors.actualHours = 'Actual hours must be a positive number.';
+      } else if (!decimalRegex.test(data.actualHours)) {
+        errors.actualHours =
+          'Actual hours must be a valid decimal (max 9999.9, up to 1 decimal place).';
+      }
+    }
+  }
+
+  return errors;
+};

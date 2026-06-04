@@ -1,5 +1,3 @@
--- TODO: add index where required
-
 CREATE TABLE IF NOT EXISTS users (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -80,6 +78,19 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     CONSTRAINT fk_activity_logs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+CREATE TABLE IF NOT EXISTS team_members (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    project_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    -- if project is deleted then team member will also be deleted
+    CONSTRAINT fk_team_members_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    -- if user is deleted then team member will also be deleted
+    CONSTRAINT fk_team_members_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- composite indexes
 CREATE INDEX idx_projects_deleted_status ON projects(deleted_at, status);
 CREATE INDEX idx_projects_deleted_owner ON projects(deleted_at, owner_id);
@@ -89,6 +100,9 @@ CREATE INDEX idx_tasks_deleted_assigned_status ON tasks(deleted_at, assigned_to,
 CREATE INDEX idx_tasks_deleted_status_priority ON tasks(deleted_at, status, priority);
 
 CREATE INDEX idx_comments_task_deleted ON comments(task_id, deleted_at);
+
+CREATE INDEX idx_team_members_project ON team_members(project_id);
+CREATE INDEX idx_team_members_user ON team_members(user_id);
 
 
 -- seeder generator
@@ -157,3 +171,14 @@ INSERT INTO comments (task_id, user_id, body, parent_id) VALUES
     (5, 1, 'Comment 13', NULL),
     (5, 2, 'Comment 14', 13),
     (5, 3, 'Comment 15', 14);
+
+INSERT INTO team_members (project_id, user_id) VALUES
+    (1, 7),
+    (1, 8),
+    (1, 9),
+    (2, 7),
+    (2, 8),
+    (2, 9),
+    (3, 7),
+    (3, 8),
+    (3, 9);

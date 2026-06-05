@@ -37,3 +37,18 @@ export interface Project {
     avatar_url: string | null;
   } | null;
 }
+
+export interface TaskComment {
+  id: number;
+  body: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+    avatar_url: string | null;
+  };
+  parent_id: number | null;
+  created_at: string;
+  replies: TaskComment[];
+}

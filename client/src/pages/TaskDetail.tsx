@@ -4,10 +4,14 @@ import api from '../services/api';
 import type { ProjectTask } from '../types';
 import TaskDetailComponent from '../components/TaskDetailComponent';
 import TaskComments from '../components/TaskComments';
+import TaskActivityTimeline from '../components/TaskActivityTimeline';
 
 export function TaskDetail() {
   const { slug, taskId } = useParams<{ slug: string; taskId: string }>();
   const [task, setTask] = useState<ProjectTask | null>(null);
+  const [activityTrigger, setActivityTrigger] = useState(0);
+
+  const triggerRefresh = () => setActivityTrigger((prev) => prev + 1);
 
   // Fetch task details on mount
   useEffect(() => {
@@ -49,19 +53,25 @@ export function TaskDetail() {
           </div>
 
           {task && slug && (
-            <TaskDetailComponent
-              key={`${task.id}-${task.title}-${task.description || ''}-${task.due_date || ''}-${task.estimated_hours || ''}-${task.actual_hours || ''}-${task.priority}-${task.assigned_to?.id || ''}`}
-              initialTask={task}
-              slug={slug}
-              onUpdate={(updatedTask) => setTask(updatedTask)}
-            />
+            <>
+              <TaskDetailComponent
+                key={`${task.id}-${task.title}-${task.description || ''}-${task.due_date || ''}-${task.estimated_hours || ''}-${task.actual_hours || ''}-${task.priority}-${task.assigned_to?.id || ''}`}
+                initialTask={task}
+                slug={slug}
+                onUpdate={(updatedTask) => {
+                  setTask(updatedTask);
+                  triggerRefresh();
+                }}
+              />
+              <TaskActivityTimeline taskId={task.id} activityTrigger={activityTrigger} />
+            </>
           )}
         </div>
 
         {/* Right Column - Comments */}
         {task && (
           <div className="w-112.5 pt-16">
-            <TaskComments taskId={task.id} />
+            <TaskComments taskId={task.id} onCommentAdded={triggerRefresh} />
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 import prisma from '../../prisma/client.js';
 import { serializeTask } from '../../serializers/task.serializer.js';
 import { serializeComment } from '../../serializers/comment.serializer.js';
+import { serializeActivity } from '../../serializers/activity.serializer.js';
 import { createActivityLog } from '../../services/activity.service.js';
 
 // PUT: /api/v1/tasks/{id} — Update task
@@ -273,6 +274,33 @@ const createTaskComment = asyncHandler(async (req, res) => {
   );
 });
 
+// GET: /api/v1/tasks/{id}/activities — Recent changes / timeline
+const listTaskActivities = asyncHandler(async (req, res) => {
+  const task = req.task;
+  const taskId = task.id;
+
+  const taskComments = await prisma.comments.findMany({
+    where: { task_id: taskId },
+    select: { id: true },
+  });
+  const commentIds = taskComments.map((c) => c.id);
+
+  const OR_clause = [{ subject_type: 'task', subject_id: taskId }];
+  if (commentIds.length > 0) {
+    OR_clause.push({ subject_type: 'comment', subject_id: { in: commentIds } });
+  }
+
+  const logs = await prisma.activity_logs.findMany({
+    where: { OR: OR_clause },
+    include: { users: true },
+    orderBy: { created_at: 'desc' },
+  });
+
+  const serializedLogs = logs.map(serializeActivity);
+
+  return successResponse(res, serializedLogs, 'Task activities retrieved successfully');
+});
+
 // GET: /api/v1/tasks/{id} — Get single task details
 const showTask = asyncHandler(async (req, res) => {
   return successResponse(res, serializeTask(req.task), 'Task details retrieved successfully');
@@ -286,5 +314,6 @@ export {
   deleteTask,
   listTaskComments,
   createTaskComment,
+  listTaskActivities,
   showTask,
 };

@@ -52,3 +52,21 @@ export interface TaskComment {
   created_at: string;
   replies: TaskComment[];
 }
+
+export interface ActivityLog {
+  id: number;
+  subject_type: string;
+  subject_id: number;
+  action: string;
+  properties?: {
+    changes?: Record<string, unknown>;
+    name?: string;
+  } | null;
+  created_at: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+}

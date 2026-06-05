@@ -4,6 +4,7 @@ import type { TaskComment } from '../types';
 
 interface TaskCommentsProps {
   taskId: number;
+  onCommentAdded?: () => void;
 }
 
 interface CommentNodeProps {
@@ -22,9 +23,7 @@ function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
         title="Double-click to reply"
       >
         <div className="flex justify-between items-start text-xs text-gray-400 mb-1">
-          <span className="font-semibold text-emerald-400 capitalize">
-            {comment.user.name}
-          </span>
+          <span className="font-semibold text-emerald-400 capitalize">{comment.user.name}</span>
           <span className="text-[10px]">
             {new Date(comment.created_at).toLocaleDateString([], {
               month: 'short',
@@ -52,7 +51,7 @@ function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
   );
 }
 
-export function TaskComments({ taskId }: TaskCommentsProps) {
+export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [newCommentBody, setNewCommentBody] = useState('');
   const [replyingTo, setReplyingTo] = useState<TaskComment | null>(null);
@@ -103,6 +102,9 @@ export function TaskComments({ taskId }: TaskCommentsProps) {
         setNewCommentBody('');
         setReplyingTo(null);
         await fetchComments();
+        if (onCommentAdded) {
+          onCommentAdded();
+        }
       }
     } catch (err) {
       console.error('Failed to post comment:', err);

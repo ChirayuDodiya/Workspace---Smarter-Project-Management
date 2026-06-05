@@ -11,6 +11,7 @@ import {
   deleteTask,
   listTaskComments,
   createTaskComment,
+  listTaskActivities,
   showTask,
 } from '../controllers/task/task.controller.js';
 import {
@@ -24,6 +25,8 @@ import { loadTaskAndProject } from '../loaders/taskAndProject.loader.js';
 const router = express.Router();
 
 router.get('/:id', authMiddleware, loadTaskAndProject, showTask);
+
+router.get('/:id/activities', authMiddleware, loadTaskAndProject, listTaskActivities);
 
 router.put(
   '/:id',

@@ -120,7 +120,7 @@ const createProject = asyncHandler(async (req, res) => {
     data: {
       ...req.body,
       slug,
-      owner_id: req.user.id,
+      owner_id: req.body.owner_id !== undefined ? req.body.owner_id : req.user.id,
     },
     include: { users: true },
   });
@@ -493,6 +493,25 @@ const teamMembers = asyncHandler(async (req, res) => {
   return successResponse(res, serializedUsers, 'Team members fetched successfully');
 });
 
+// GET: /api/v1/projects/managers — List all active users with role = manager or admin
+const listManagers = asyncHandler(async (req, res) => {
+  const managers = await prisma.users.findMany({
+    where: {
+      role: {
+        in: ['manager', 'admin'],
+      },
+      is_active: true,
+      deleted_at: null,
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  });
+
+  const serialized = managers.map((user) => serializeUser(user));
+  return successResponse(res, serialized, 'Managers fetched successfully');
+});
+
 export {
   listProjects,
   createProject,
@@ -503,4 +522,5 @@ export {
   listTasks,
   createTask,
   teamMembers,
+  listManagers,
 };

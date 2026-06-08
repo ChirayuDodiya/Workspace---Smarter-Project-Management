@@ -10,6 +10,7 @@ import {
   listTasks,
   createTask,
   teamMembers,
+  listManagers,
 } from '../controllers/project/project.controller.js';
 import { ProjectPolicy } from '../policies/project.policy.js';
 import { TaskPolicy } from '../policies/task.policy.js';
@@ -20,6 +21,7 @@ const router = express.Router();
 
 router.get('/', authMiddleware, listProjects);
 router.post('/', authMiddleware, validateCreateProject, ProjectPolicy.canCreate, createProject);
+router.get('/managers', authMiddleware, listManagers);
 router.get('/:slug', authMiddleware, showProject);
 router.put('/:slug', authMiddleware, validateUpdateProject, ProjectPolicy.canUpdate, updateProject);
 router.delete('/:slug', authMiddleware, ProjectPolicy.canDelete, deleteProject);

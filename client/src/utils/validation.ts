@@ -97,3 +97,41 @@ export const validateAddTaskForm = (data: {
 
   return errors;
 };
+
+export const budgetRegex = /^\d{1,8}(\.\d{1,2})?$/;
+
+export const validateAddProjectForm = (data: {
+  name: string;
+  budget: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  const errors: { name?: string; budget?: string; endDate?: string } = {};
+
+  if (!data.name.trim()) {
+    errors.name = 'Project name is required.';
+  } else if (data.name.trim().length < 3) {
+    errors.name = 'Project name must be at least 3 characters.';
+  } else if (data.name.trim().length > 255) {
+    errors.name = 'Project name cannot exceed 255 characters.';
+  }
+
+  if (data.budget) {
+    const parsedBudget = parseFloat(data.budget);
+    if (isNaN(parsedBudget) || parsedBudget <= 0) {
+      errors.budget = 'Budget must be a positive number.';
+    } else if (!budgetRegex.test(data.budget)) {
+      errors.budget = 'Budget must be a valid number (max 8 digits, up to 2 decimal places).';
+    }
+  }
+
+  if (data.startDate && data.endDate) {
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end < start) {
+      errors.endDate = 'End date cannot be earlier than start date.';
+    }
+  }
+
+  return errors;
+};

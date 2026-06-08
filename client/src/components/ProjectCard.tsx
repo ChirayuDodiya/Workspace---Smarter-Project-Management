@@ -1,14 +1,34 @@
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 import type { Project } from '../types';
 
 interface ProjectCardProps {
   project: Project;
+  onDeleteSuccess: () => void;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, onDeleteSuccess }: ProjectCardProps) {
   const totalTasks = project.task_count || 0;
   const completedTasks = project.completed_tasks || 0;
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (window.confirm(`Are you sure you want to delete project "${project.name}"?`)) {
+      try {
+        const response = await api.delete(`/projects/${project.slug}`);
+        if (response.data && response.data.success) {
+          onDeleteSuccess();
+        }
+      } catch (err: unknown) {
+        const axiosError = err as { response?: { data?: { message?: string } } };
+        const msg = axiosError.response?.data?.message || 'Failed to delete project.';
+        alert(msg);
+      }
+    }
+  };
 
   return (
     <Link
@@ -32,11 +52,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </div>
 
-        <span
-          className={`px-3 py-1 text-md font-semibold rounded-full capitalize bg-[#2d2d2d] text-zinc-300 border border-zinc-700/60`}
-        >
-          {project.status}
-        </span>
+        <div className="flex gap-2 items-center">
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-950/40 border border-red-500/50 hover:bg-red-900/60 hover:border-red-400 text-red-200 transition-colors cursor-pointer select-none focus:outline-none"
+          >
+            del
+          </button>
+          <span
+            className={`px-3 py-1 text-md font-semibold rounded-full capitalize bg-[#2d2d2d] text-zinc-300 border border-zinc-700/60`}
+          >
+            {project.status}
+          </span>
+        </div>
       </div>
 
       <div className="mt-4">

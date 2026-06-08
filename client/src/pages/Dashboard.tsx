@@ -140,7 +140,15 @@ export function Dashboard() {
             <>
               <div className="grid grid-cols-2 gap-6 mt-4">
                 {projects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    onDeleteSuccess={() => {
+                      setPage(1);
+                      setProjects([]);
+                      setRefreshKey((prev) => prev + 1);
+                    }}
+                  />
                 ))}
               </div>
 

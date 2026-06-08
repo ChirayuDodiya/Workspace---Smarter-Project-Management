@@ -37,12 +37,15 @@ const projectCreateSchema = z.object({
 
   owner_id: z
     .preprocess((value) => {
+      if (value === null || value === '') {
+        return null;
+      }
       if (typeof value === 'string' && value.trim() !== '') {
         return Number(value);
       }
 
       return value;
-    }, z.number().int().positive('Owner ID must be a positive integer'))
+    }, z.number().int().positive('Owner ID must be a positive integer').nullable())
     .optional(),
 
   //if start date is not provided, it will be set to the current date
@@ -78,7 +81,7 @@ const validateCreateProject = (req, res, next) => {
 
 const validateUpdateProject = (req, res, next) => {
   try {
-    projectUpdateSchema.parse(req.body);
+    req.body = projectUpdateSchema.parse(req.body);
 
     return next();
   } catch (err) {

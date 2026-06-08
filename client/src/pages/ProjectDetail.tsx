@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import type { Project } from '../types';
 import ProjectDetailsCard from '../components/ProjectDetailsCard';
@@ -8,6 +8,7 @@ import AddTaskModal from '../components/AddTaskModal';
 
 export function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [boardKey, setBoardKey] = useState(0);
@@ -33,6 +34,13 @@ export function ProjectDetail() {
     };
   }, [slug]);
 
+  const handleProjectUpdated = (updatedProject: Project) => {
+    setProject(updatedProject);
+    if (updatedProject.slug !== slug) {
+      navigate(`/projects/${updatedProject.slug}`, { replace: true });
+    }
+  };
+
   if (!project) {
     return null;
   }
@@ -51,7 +59,7 @@ export function ProjectDetail() {
           </Link>
 
           {/* Project Details Card */}
-          <ProjectDetailsCard project={project} />
+          <ProjectDetailsCard project={project} onProjectUpdated={handleProjectUpdated} />
 
           {/* Add Task Button */}
           <button

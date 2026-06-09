@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import type { TaskComment } from '../types';
+import type { TaskComment, User } from '../types';
+import { useAuth } from '../hooks/useAuth';
 
 interface TaskCommentsProps {
   taskId: number;
@@ -11,9 +12,102 @@ interface CommentNodeProps {
   comment: TaskComment;
   onReply: (comment: TaskComment) => void;
   depth?: number;
+  currentUser: User | null | undefined;
+  onRefresh: () => void;
 }
 
-function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
+function CommentNode({ comment, onReply, depth = 0, currentUser, onRefresh }: CommentNodeProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBody, setEditBody] = useState(comment.body);
+  const [error, setError] = useState<string | null>(null);
+  const [isWithin15Mins, setIsWithin15Mins] = useState(false);
+
+  // Sync state if comment body changes from external updates (React 19 pure render state adjustment pattern)
+  const [prevBody, setPrevBody] = useState(comment.body);
+  if (comment.body !== prevBody) {
+    setPrevBody(comment.body);
+    setEditBody(comment.body);
+  }
+
+  useEffect(() => {
+    const createdTime = new Date(comment.created_at).getTime();
+    const fifteenMinutesInMs = 15 * 60 * 1000;
+
+    const checkTime = () => {
+      const timeElapsed = Date.now() - createdTime;
+      setIsWithin15Mins(timeElapsed < fifteenMinutesInMs);
+    };
+
+    checkTime();
+
+    const timeRemaining = fifteenMinutesInMs - (Date.now() - createdTime);
+    if (timeRemaining > 0) {
+      const timer = setTimeout(() => {
+        setIsWithin15Mins(false);
+      }, timeRemaining);
+      return () => clearTimeout(timer);
+    }
+  }, [comment.created_at]);
+
+  const isOwner = comment.user?.id === currentUser?.id;
+  const isAdmin = currentUser?.role === 'admin';
+  const canEdit = isOwner && isWithin15Mins;
+  const canDelete = isAdmin || (isOwner && isWithin15Mins);
+
+  const handleSave = async () => {
+    const trimmedBody = editBody.trim();
+    if (!trimmedBody) {
+      setError('Comment body cannot be empty');
+      return;
+    }
+    if (trimmedBody === comment.body) {
+      setIsEditing(false);
+      setError(null);
+      return;
+    }
+
+    try {
+      setError(null);
+      const res = await api.put(`/comments/${comment.id}`, { body: trimmedBody });
+      if (res.data && res.data.success) {
+        setIsEditing(false);
+        onRefresh();
+      } else {
+        setError(res.data?.message || 'Failed to update comment');
+      }
+    } catch (err) {
+      console.error(err);
+      const errorResponse = err as { response?: { data?: { message?: string } } };
+      setError(errorResponse.response?.data?.message || 'Failed to update comment');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setError(null);
+      const res = await api.delete(`/comments/${comment.id}`);
+      if (res.data && res.data.success) {
+        onRefresh();
+      } else {
+        setError(res.data?.message || 'Failed to delete comment');
+      }
+    } catch (err) {
+      console.error(err);
+      const errorResponse = err as { response?: { data?: { message?: string } } };
+      setError(errorResponse.response?.data?.message || 'Failed to delete comment');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      void handleSave();
+    } else if (e.key === 'Escape') {
+      setIsEditing(false);
+      setEditBody(comment.body);
+      setError(null);
+    }
+  };
+
   return (
     <div className="space-y-2">
       {/* Comment Box */}
@@ -24,18 +118,70 @@ function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
       >
         <div className="flex justify-between items-start text-xs text-gray-400 mb-1">
           <span className="font-semibold text-emerald-400 capitalize">{comment.user.name}</span>
-          <span className="text-[10px]">
-            {new Date(comment.created_at).toLocaleDateString([], {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px]">
+              {new Date(comment.created_at).toLocaleDateString([], {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
+            {canDelete && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void handleDelete();
+                }}
+                className="text-red-500 hover:text-red-400 transition-colors p-0.5 rounded cursor-pointer"
+                title="Delete comment"
+              >
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
-        <div className="text-sm text-gray-200 wrap-break-word pl-1 flex items-start gap-2">
-          {depth > 0 && <span className="text-emerald-500 font-bold shrink-0">-&gt;</span>}
-          <span>{comment.body}</span>
+        <div className="text-sm text-gray-200 wrap-break-word pl-1 flex flex-col items-start gap-1">
+          <div className="flex items-start gap-2 w-full">
+            {depth > 0 && <span className="text-emerald-500 font-bold shrink-0">-&gt;</span>}
+            {isEditing ? (
+              <input
+                type="text"
+                value={editBody}
+                onChange={(e) => setEditBody(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-[#1e1e1e] border border-emerald-700 focus:border-emerald-500 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
+                autoFocus
+              />
+            ) : (
+              <span
+                onClick={() => {
+                  if (canEdit) {
+                    setIsEditing(true);
+                  }
+                }}
+                className={canEdit ? 'cursor-pointer hover:text-emerald-300 transition-colors' : ''}
+                title={canEdit ? 'Click to edit comment' : undefined}
+              >
+                {comment.body}
+              </span>
+            )}
+          </div>
+          {error && <span className="text-red-500 text-xs mt-1 block pl-1">{error}</span>}
         </div>
       </div>
 
@@ -43,7 +189,14 @@ function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
       {comment.replies && comment.replies.length > 0 && (
         <div className="pl-4 border-l border-emerald-800/40 space-y-2 ml-2">
           {comment.replies.map((reply) => (
-            <CommentNode key={reply.id} comment={reply} onReply={onReply} depth={depth + 1} />
+            <CommentNode
+              key={reply.id}
+              comment={reply}
+              onReply={onReply}
+              depth={depth + 1}
+              currentUser={currentUser}
+              onRefresh={onRefresh}
+            />
           ))}
         </div>
       )}
@@ -52,6 +205,7 @@ function CommentNode({ comment, onReply, depth = 0 }: CommentNodeProps) {
 }
 
 export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
+  const { user: currentUser } = useAuth();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [newCommentBody, setNewCommentBody] = useState('');
   const [replyingTo, setReplyingTo] = useState<TaskComment | null>(null);
@@ -120,7 +274,18 @@ export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
         <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4 scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
           {comments.length > 0 ? (
             comments.map((comment) => (
-              <CommentNode key={comment.id} comment={comment} onReply={setReplyingTo} />
+              <CommentNode
+                key={comment.id}
+                comment={comment}
+                onReply={setReplyingTo}
+                currentUser={currentUser}
+                onRefresh={async () => {
+                  await fetchComments();
+                  if (onCommentAdded) {
+                    onCommentAdded();
+                  }
+                }}
+              />
             ))
           ) : (
             <div className="h-full flex items-center justify-center">

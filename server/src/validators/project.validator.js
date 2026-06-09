@@ -53,7 +53,17 @@ const projectCreateSchema = z.object({
     .preprocess(parseDate, z.date({ invalid_type_error: 'Invalid start date' }))
     .default(() => new Date()),
 
-  end_date: z.preprocess(parseDate, z.date({ invalid_type_error: 'Invalid end date' })).optional(),
+  end_date: z
+    .preprocess(
+      (val) => {
+        if (val === undefined) return undefined;
+        if (val === null || val === '') return null;
+        const parsed = new Date(val);
+        return Number.isNaN(parsed.getTime()) ? val : parsed;
+      },
+      z.date({ invalid_type_error: 'Invalid end date' }).nullable()
+    )
+    .optional(),
 
   budget: z
     .string()

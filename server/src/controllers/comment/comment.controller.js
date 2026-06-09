@@ -79,6 +79,14 @@ const deleteComment = asyncHandler(async (req, res) => {
     return errorResponse(res, 'You are not authorized to delete this comment', 403);
   }
 
+  if (isOwner && !isAdmin) {
+    const createdAtTime = new Date(comment.created_at || comment.createdAt).getTime();
+    const elapsedMinutes = (Date.now() - createdAtTime) / 1000 / 60;
+    if (elapsedMinutes > 15) {
+      return errorResponse(res, 'Comment can only be deleted within 15 minutes of creation', 400);
+    }
+  }
+
   await prisma.comments.update({
     where: { id: commentId },
     data: { deleted_at: new Date() },

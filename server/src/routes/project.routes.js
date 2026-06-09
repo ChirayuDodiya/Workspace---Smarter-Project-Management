@@ -37,7 +37,14 @@ router.put(
 router.delete('/:slug', authMiddleware, loadProjectBySlug, ProjectPolicy.canDelete, deleteProject);
 router.get('/:slug/stats', authMiddleware, projectStats);
 router.get('/:slug/tasks', authMiddleware, listTasks);
-router.post('/:slug/tasks', authMiddleware, validateCreateTask, TaskPolicy.canCreate, createTask);
+router.post(
+  '/:slug/tasks',
+  authMiddleware,
+  loadProjectBySlug,
+  validateCreateTask,
+  TaskPolicy.canCreate,
+  createTask
+);
 router.get('/:slug/team-members', authMiddleware, loadProjectBySlug, teamMembers);
 router.post(
   '/:slug/team-members',

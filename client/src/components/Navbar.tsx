@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function Navbar() {
@@ -12,7 +13,21 @@ export function Navbar() {
   };
 
   return (
-    <header className="w-full bg-[#121212] border-b border-[#2d2d2d] px-8 py-3 flex items-center justify-end h-16 text-white select-none">
+    <header className="w-full bg-[#121212] border-b border-[#2d2d2d] px-8 py-3 flex items-center justify-between h-16 text-white select-none">
+      {/* Navigation links on the left */}
+      <nav className="flex items-center gap-6">
+        <Link to="/" className="text-base font-semibold hover:text-emerald-400 transition-colors">
+          Dashboard
+        </Link>
+        <Link
+          to="/change-role"
+          className="text-base font-semibold hover:text-emerald-400 transition-colors"
+        >
+          Change Role
+        </Link>
+      </nav>
+
+      {/* User info and logout on the right */}
       <div className="flex items-center gap-6">
         <button
           onClick={handleLogout}

@@ -79,7 +79,7 @@ const taskCreateSchema = z.object({
     .optional(),
 });
 
-const taskUpdateSchema = taskCreateSchema.partial();
+const taskUpdateSchema = taskCreateSchema.omit({ status: true, assigned_to: true }).partial();
 
 const validateCreateTask = (req, res, next) => {
   try {

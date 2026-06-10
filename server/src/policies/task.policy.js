@@ -39,20 +39,22 @@ const TaskPolicy = {
   },
 
   canUpdate(req, res, next) {
-    const user = req.user;
-    const project = req.project;
-
-    if (user?.role === 'admin' || project?.owner_id === user?.id) {
-      return next();
-    }
-
-    return errorResponse(res, 'You are not authorized to update this task.', 403);
+    return next();
   },
 
   canDelete(req, res, next) {
     const user = req.user;
+    const project = req.project;
+
+    if (!project) {
+      return errorResponse(res, 'Project context not loaded', 400);
+    }
 
     if (user?.role === 'admin') {
+      return next();
+    }
+
+    if (project.owner_id === user?.id) {
       return next();
     }
 
@@ -61,9 +63,14 @@ const TaskPolicy = {
 
   canChangeStatus(req, res, next) {
     const user = req.user;
+    const project = req.project;
     const task = req.task;
 
-    if (user?.role === 'admin' || user?.role === 'manager' || task?.assigned_to === user?.id) {
+    if (
+      user?.role === 'admin' ||
+      project?.owner_id === user?.id ||
+      task?.assigned_to === user?.id
+    ) {
       return next();
     }
 

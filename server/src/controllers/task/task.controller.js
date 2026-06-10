@@ -12,28 +12,6 @@ const updateTask = asyncHandler(async (req, res) => {
   const taskId = task.id;
   const updateData = { ...req.body, updated_at: new Date() };
 
-  if (updateData.status && updateData.status !== task.status) {
-    const statuses = ['todo', 'in_progress', 'in_review', 'done'];
-    const currentIdx = statuses.indexOf(task.status);
-    const newIdx = statuses.indexOf(updateData.status);
-
-    if (newIdx > currentIdx + 1) {
-      return errorResponse(
-        res,
-        `Invalid status transition from ${task.status} to ${updateData.status}`,
-        400
-      );
-    }
-
-    if (updateData.status === 'done') {
-      const actualHours =
-        updateData.actual_hours !== undefined ? updateData.actual_hours : task.actual_hours;
-      if (actualHours === null || actualHours === undefined) {
-        return errorResponse(res, 'Actual hours are required when moving task to done', 400);
-      }
-    }
-  }
-
   const updatedTask = await prisma.tasks.update({
     where: { id: taskId },
     data: updateData,

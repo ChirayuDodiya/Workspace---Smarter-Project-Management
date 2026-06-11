@@ -6,11 +6,13 @@ import TaskDetailComponent from '../components/TaskDetailComponent';
 import TaskComments from '../components/TaskComments';
 import TaskActivityTimeline from '../components/TaskActivityTimeline';
 import { socket } from '../services/socket';
+import { useAuth } from '../hooks/useAuth';
 
 export function TaskDetail() {
   const { slug, taskId } = useParams<{ slug: string; taskId: string }>();
   const [task, setTask] = useState<ProjectTask | null>(null);
   const [activityTrigger, setActivityTrigger] = useState(0);
+  const { user } = useAuth();
 
   const triggerRefresh = () => setActivityTrigger((prev) => prev + 1);
 
@@ -38,15 +40,15 @@ export function TaskDetail() {
 
   // Join/leave project room
   useEffect(() => {
-    if (slug) {
-      socket.emit('join:project', slug);
+    if (slug && user) {
+      socket.emit('join:project', { projectSlug: slug, user });
     }
     return () => {
       if (slug) {
-        socket.emit('leave:project', slug);
+        socket.emit('leave:project');
       }
     };
-  }, [slug]);
+  }, [slug, user]);
 
   // Listen to task updates in real-time
   useEffect(() => {

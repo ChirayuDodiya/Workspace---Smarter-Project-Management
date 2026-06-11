@@ -37,7 +37,7 @@ const updateTask = asyncHandler(async (req, res) => {
     console.error('Activity log failed:', error);
   });
 
-  broadcastTaskUpdated(req, req.project.slug, serializeTask(updatedTask));
+  broadcastTaskUpdated(req, req.project.slug, serializeTask(updatedTask), req.task);
 
   return successResponse(res, serializeTask(updatedTask), 'Task updated successfully');
 });
@@ -88,7 +88,7 @@ const changeTaskStatus = asyncHandler(async (req, res) => {
     console.error('Activity log failed:', error);
   });
 
-  broadcastTaskStatusChange(req, req.project.slug, serializeTask(updatedTask));
+  broadcastTaskStatusChange(req, req.project.slug, serializeTask(updatedTask), req.task);
 
   return successResponse(res, serializeTask(updatedTask), 'Task status updated successfully');
 });
@@ -127,7 +127,7 @@ const assignTask = asyncHandler(async (req, res) => {
     console.error('Activity log failed:', error);
   });
 
-  broadcastTaskAssigned(req, req.project.slug, serializeTask(updatedTask));
+  broadcastTaskAssigned(req, req.project.slug, serializeTask(updatedTask), req.task);
 
   return successResponse(res, serializeTask(updatedTask), 'Task assignment updated successfully');
 });

@@ -17,12 +17,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (user) {
       socket.connect();
+
+      const onConnect = () => {
+        socket.emit('join:user', user.id);
+      };
+
+      socket.on('connect', onConnect);
+      if (socket.connected) {
+        onConnect();
+      }
+
+      return () => {
+        socket.off('connect', onConnect);
+        socket.disconnect();
+      };
     } else {
       socket.disconnect();
     }
-    return () => {
-      socket.disconnect();
-    };
   }, [user]);
 
   // Verify session validity via /auth/me

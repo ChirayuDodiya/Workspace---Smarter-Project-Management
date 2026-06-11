@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import type { Project } from '../types';
+import type { Project, User } from '../types';
 import ProjectDetailsCard from '../components/ProjectDetailsCard';
 import KanbanBoard from '../components/KanbanBoard';
 import AddTaskModal from '../components/AddTaskModal';
 import ProjectMembersModal from '../components/ProjectMembersModal';
 import { socket } from '../services/socket';
+import { useAuth } from '../hooks/useAuth';
 
 export function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -14,6 +15,8 @@ export function ProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
+  const { user } = useAuth();
+  const [viewers, setViewers] = useState<User[]>([]);
 
   // Fetch project details
   useEffect(() => {
@@ -36,17 +39,23 @@ export function ProjectDetail() {
     };
   }, [slug]);
 
-  // Join/leave project socket room on mount/unmount
+  // Join/leave project socket room on mount/unmount and track presence
   useEffect(() => {
-    if (slug) {
-      socket.emit('join:project', slug);
+    if (slug && user) {
+      socket.emit('join:project', { projectSlug: slug, user });
+
+      const handlePresence = (members: User[]) => {
+        setViewers(members);
+      };
+
+      socket.on('project:presence', handlePresence);
+
+      return () => {
+        socket.off('project:presence', handlePresence);
+        socket.emit('leave:project');
+      };
     }
-    return () => {
-      if (slug) {
-        socket.emit('leave:project', slug);
-      }
-    };
-  }, [slug]);
+  }, [slug, user]);
 
   const handleProjectUpdated = (updatedProject: Project) => {
     setProject(updatedProject);
@@ -74,6 +83,18 @@ export function ProjectDetail() {
 
           {/* Project Details Card */}
           <ProjectDetailsCard project={project} onProjectUpdated={handleProjectUpdated} />
+
+          {/* Active Viewers presence */}
+          {viewers.length > 0 && (
+            <div className="self-end h-10 flex items-center gap-2 mr-4 bg-[#1a1a1e]/60 border border-neutral-800/80 px-4 rounded-full select-none shadow-sm">
+              <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                Viewing:
+              </span>
+              <span className="text-xs font-semibold text-emerald-400">
+                {viewers.map((v) => v.name).join(', ')}
+              </span>
+            </div>
+          )}
 
           {/* Add Task Button */}
           <button

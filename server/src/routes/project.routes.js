@@ -19,13 +19,14 @@ import { TaskPolicy } from '../policies/task.policy.js';
 import { validateCreateProject, validateUpdateProject } from '../validators/project.validator.js';
 import { validateCreateTask } from '../validators/task.validator.js';
 import { loadProjectBySlug } from '../loaders/project.loader.js';
+import { etagMiddleware } from '../middlewares/etag.middleware.js';
 
 const router = express.Router();
 
-router.get('/', authMiddleware, listProjects);
+router.get('/', authMiddleware, etagMiddleware, listProjects);
 router.post('/', authMiddleware, validateCreateProject, ProjectPolicy.canCreate, createProject);
-router.get('/managers', authMiddleware, listManagers);
-router.get('/:slug', authMiddleware, showProject);
+router.get('/managers', authMiddleware, etagMiddleware, listManagers);
+router.get('/:slug', authMiddleware, etagMiddleware, showProject);
 router.put(
   '/:slug',
   authMiddleware,
@@ -35,8 +36,8 @@ router.put(
   updateProject
 );
 router.delete('/:slug', authMiddleware, loadProjectBySlug, ProjectPolicy.canDelete, deleteProject);
-router.get('/:slug/stats', authMiddleware, projectStats);
-router.get('/:slug/tasks', authMiddleware, listTasks);
+router.get('/:slug/stats', authMiddleware, etagMiddleware, projectStats);
+router.get('/:slug/tasks', authMiddleware, etagMiddleware, listTasks);
 router.post(
   '/:slug/tasks',
   authMiddleware,
@@ -45,7 +46,7 @@ router.post(
   TaskPolicy.canCreate,
   createTask
 );
-router.get('/:slug/team-members', authMiddleware, loadProjectBySlug, teamMembers);
+router.get('/:slug/team-members', authMiddleware, loadProjectBySlug, etagMiddleware, teamMembers);
 router.post(
   '/:slug/team-members',
   authMiddleware,

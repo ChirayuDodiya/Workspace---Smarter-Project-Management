@@ -22,11 +22,18 @@ import {
 } from '../validators/task.validator.js';
 import { validateCreateComment } from '../validators/comment.validator.js';
 import { loadTaskAndProject } from '../loaders/taskAndProject.loader.js';
+import { etagMiddleware } from '../middlewares/etag.middleware.js';
 const router = express.Router();
 
-router.get('/:id', authMiddleware, loadTaskAndProject, showTask);
+router.get('/:id', authMiddleware, loadTaskAndProject, etagMiddleware, showTask);
 
-router.get('/:id/activities', authMiddleware, loadTaskAndProject, listTaskActivities);
+router.get(
+  '/:id/activities',
+  authMiddleware,
+  loadTaskAndProject,
+  etagMiddleware,
+  listTaskActivities
+);
 
 router.put(
   '/:id',
@@ -59,7 +66,7 @@ router.post('/reorder', authMiddleware, validateReorderTasks, reorderTasks);
 
 router.delete('/:id', authMiddleware, loadTaskAndProject, TaskPolicy.canDelete, deleteTask);
 
-router.get('/:id/comments', authMiddleware, loadTaskAndProject, listTaskComments);
+router.get('/:id/comments', authMiddleware, loadTaskAndProject, etagMiddleware, listTaskComments);
 
 router.post(
   '/:id/comments',

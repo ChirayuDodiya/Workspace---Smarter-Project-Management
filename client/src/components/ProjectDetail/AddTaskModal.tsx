@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../services/api';
-import type { User } from '../types';
-import { validateAddTaskForm } from '../utils/validation';
+import api from '../../services/api';
+import type { User } from '../../types';
+import { validateAddTaskForm } from '../../utils/validation';
 
 interface AddTaskModalProps {
   isOpen: boolean;

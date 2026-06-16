@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import type { Project, User } from '../types';
-import ProjectDetailsCard from '../components/ProjectDetailsCard';
-import ProjectStats from '../components/ProjectStats';
-import KanbanBoard from '../components/KanbanBoard';
-import AddTaskModal from '../components/AddTaskModal';
-import ProjectMembersModal from '../components/ProjectMembersModal';
+import ProjectDetailsCard from '../components/ProjectDetail/ProjectDetailsCard';
+import ProjectStats from '../components/ProjectDetail/ProjectStats';
+import KanbanBoard from '../components/ProjectDetail/KanbanBoard';
+import AddTaskModal from '../components/ProjectDetail/AddTaskModal';
+import ProjectMembersModal from '../components/ProjectDetail/ProjectMembersModal';
 
 import { socket } from '../services/socket';
 import { useAuth } from '../hooks/useAuth';

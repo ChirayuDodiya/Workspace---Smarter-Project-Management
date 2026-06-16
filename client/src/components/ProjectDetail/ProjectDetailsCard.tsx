@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { Project, User } from '../types';
-import { formatDate } from '../utils/formatDate';
-import api from '../services/api';
+import type { Project, User } from '../../types';
+import { formatDate } from '../../utils/formatDate';
+import api from '../../services/api';
 
 interface ProjectDetailsCardProps {
   project: Project;

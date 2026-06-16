@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
-import type { User } from '../types';
+import api from '../../services/api';
+import type { User } from '../../types';
 
 interface ProjectMembersModalProps {
   isOpen: boolean;

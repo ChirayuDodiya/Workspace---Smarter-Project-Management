@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/react';
 import { CollisionPriority } from '@dnd-kit/abstract';
-import type { ProjectTask } from '../types';
+import type { ProjectTask } from '../../types';
 import TaskCard from './TaskCard';
 
 interface KanbanColumnProps {

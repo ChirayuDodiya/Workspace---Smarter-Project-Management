@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
-import type { ProjectStatsData } from '../types';
+import api from '../../services/api';
+import type { ProjectStatsData } from '../../types';
 
 interface ProjectStatsProps {
   slug: string;

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import type { ProjectTask } from '../types';
-import type { User } from '../types/auth';
-import { decimalRegex } from '../utils/validation';
+import api from '../../services/api';
+import type { ProjectTask } from '../../types';
+import type { User } from '../../types/auth';
+import { decimalRegex } from '../../utils/validation';
 
 interface TaskDetailComponentProps {
   initialTask: ProjectTask;

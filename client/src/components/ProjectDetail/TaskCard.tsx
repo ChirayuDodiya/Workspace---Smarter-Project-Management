@@ -1,8 +1,8 @@
 import { useSortable } from '@dnd-kit/react/sortable';
 import { CollisionPriority } from '@dnd-kit/abstract';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { ProjectTask } from '../types';
-import { formatDate } from '../utils/formatDate';
+import type { ProjectTask } from '../../types';
+import { formatDate } from '../../utils/formatDate';
 
 interface TaskCardProps {
   task: ProjectTask;

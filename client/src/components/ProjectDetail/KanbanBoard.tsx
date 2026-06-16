@@ -1,9 +1,9 @@
 import { DragDropProvider } from '@dnd-kit/react';
 import KanbanColumn from './KanbanColumn';
 import ActualHoursPopUp from './ActualHoursPopUp';
-import useKanbanTasks from '../hooks/useKanbanTasks';
-import useTaskReorder from '../hooks/useTaskReorder';
-import useTaskTransitions from '../hooks/useTaskTransitions';
+import useKanbanTasks from '../../hooks/useKanbanTasks';
+import useTaskReorder from '../../hooks/useTaskReorder';
+import useTaskTransitions from '../../hooks/useTaskTransitions';
 
 interface KanbanBoardProps {
   slug: string;

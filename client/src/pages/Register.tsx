@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import InputField from '../components/InputField';
+import InputField from '../components/Auth/InputField';
 
 import {
   validateName,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { InputFieldProps } from '../types';
+import type { InputFieldProps } from '../../types';
 
 function InputField({
   label,

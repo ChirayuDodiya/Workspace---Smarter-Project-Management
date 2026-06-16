@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import Stats from '../components/Stats';
-import ProjectCard from '../components/ProjectCard';
-import AddProjectModal from '../components/AddProjectModal';
+import Stats from '../components/Dashboard/Stats';
+import ProjectCard from '../components/Dashboard/ProjectCard';
+import AddProjectModal from '../components/Dashboard/AddProjectModal';
 import api from '../services/api';
 import type { Project } from '../types';
 

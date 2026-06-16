@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
-import type { ActivityLog } from '../types';
+import api from '../../services/api';
+import type { ActivityLog } from '../../types';
 
 interface TaskActivityTimelineProps {
   taskId: number;

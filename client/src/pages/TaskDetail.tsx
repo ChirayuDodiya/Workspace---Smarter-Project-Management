@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
 import type { ProjectTask } from '../types';
-import TaskDetailComponent from '../components/TaskDetailComponent';
-import TaskComments from '../components/TaskComments';
-import TaskActivityTimeline from '../components/TaskActivityTimeline';
+import TaskDetailComponent from '../components/TaskDetail/TaskDetailComponent';
+import TaskComments from '../components/TaskDetail/TaskComments';
+import TaskActivityTimeline from '../components/TaskDetail/TaskActivityTimeline';
 import { socket } from '../services/socket';
 import { useAuth } from '../hooks/useAuth';
 

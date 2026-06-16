@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import api from '../services/api';
-import type { TaskComment, User } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { socket } from '../services/socket';
+import api from '../../services/api';
+import type { TaskComment, User } from '../../types';
+import { useAuth } from '../../hooks/useAuth';
+import { socket } from '../../services/socket';
 
 interface TaskCommentsProps {
   taskId: number;

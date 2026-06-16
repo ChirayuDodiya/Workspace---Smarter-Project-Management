@@ -56,8 +56,4 @@ export const invalidateProjectStats = async (slug) => {
   }
 };
 
-export default {
-  getCachedStats,
-  setCachedStats,
-  invalidateProjectStats,
-};
+export { redis };

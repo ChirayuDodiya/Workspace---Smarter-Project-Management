@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { errorMiddleware } from './middlewares/error.middleware.js';
+import { rateLimiterMiddleware } from './middlewares/rateLimiter.middleware.js';
 import authRoutes from './routes/auth.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import taskRoutes from './routes/task.routes.js';
@@ -20,6 +21,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(rateLimiterMiddleware);
 
 // API Routes (v1)
 app.use('/api/v1/auth', authRoutes);

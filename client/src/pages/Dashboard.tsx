@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Stats from '../components/Dashboard/Stats';
 import ProjectCard from '../components/Dashboard/ProjectCard';
+import ProjectCardSkeleton from '../components/Dashboard/ProjectCardSkeleton';
 import AddProjectModal from '../components/Dashboard/AddProjectModal';
 import api from '../services/api';
 import type { Project } from '../types';
@@ -12,6 +13,7 @@ export function Dashboard() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -38,6 +40,7 @@ export function Dashboard() {
     let active = true;
     const fetchProjects = async () => {
       try {
+        setIsLoading(true);
         const params: Record<string, string | number> = {
           page,
           per_page: 20,
@@ -73,6 +76,10 @@ export function Dashboard() {
         }
       } catch {
         // ignore error
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -148,7 +155,7 @@ export function Dashboard() {
           </div>
 
           {/* Projects Listing */}
-          {projects.length === 0 ? (
+          {projects.length === 0 && !isLoading ? (
             <div className="text-gray-500 text-sm italic">No projects found.</div>
           ) : (
             <>
@@ -164,10 +171,18 @@ export function Dashboard() {
                     }}
                   />
                 ))}
+                {isLoading && (
+                  <>
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                    <ProjectCardSkeleton />
+                  </>
+                )}
               </div>
 
               {/* Pagination See More Button */}
-              {hasMore && (
+              {hasMore && !isLoading && (
                 <div className="flex justify-center pt-8 pb-12">
                   <button
                     onClick={() => setPage((prev) => prev + 1)}

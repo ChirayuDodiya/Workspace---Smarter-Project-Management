@@ -23,6 +23,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(rateLimiterMiddleware);
 
+// Temporary delay middleware to simulate network latency for loading skeletons
+// app.use((req, res, next) => {
+//   setTimeout(next, 250);
+// });
+
 // API Routes (v1)
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/projects', projectRoutes);

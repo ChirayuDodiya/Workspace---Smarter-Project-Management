@@ -26,6 +26,7 @@ export function useKanbanTasks(slug: string, search: string = '') {
   });
 
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch tasks for a specific column status
   const fetchTasksForStatus = useCallback(
@@ -79,13 +80,20 @@ export function useKanbanTasks(slug: string, search: string = '') {
         in_review: 1,
         done: 1,
       };
-      const timer = setTimeout(() => {
-        void fetchTasksForStatus('todo', 1);
-        void fetchTasksForStatus('in_progress', 1);
-        void fetchTasksForStatus('in_review', 1);
-        void fetchTasksForStatus('done', 1);
-      }, 0);
-      return () => clearTimeout(timer);
+      const loadAll = async () => {
+        setIsLoading(true);
+        try {
+          await Promise.all([
+            fetchTasksForStatus('todo', 1),
+            fetchTasksForStatus('in_progress', 1),
+            fetchTasksForStatus('in_review', 1),
+            fetchTasksForStatus('done', 1),
+          ]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      void loadAll();
     }
   }, [slug, fetchTasksForStatus, refreshKey]);
 
@@ -173,6 +181,7 @@ export function useKanbanTasks(slug: string, search: string = '') {
     handleSeeMore,
     refreshKey,
     setRefreshKey,
+    isLoading,
   };
 }
 

@@ -3,6 +3,7 @@ import { useDroppable } from '@dnd-kit/react';
 import { CollisionPriority } from '@dnd-kit/abstract';
 import type { ProjectTask } from '../../types';
 import TaskCard from './TaskCard';
+import TaskCardSkeleton from './TaskCardSkeleton';
 
 interface KanbanColumnProps {
   id: string;
@@ -10,6 +11,7 @@ interface KanbanColumnProps {
   tasks: ProjectTask[];
   hasMore: boolean;
   onSeeMore: (status: ProjectTask['status']) => void;
+  isLoading?: boolean;
 }
 
 // React.memo is used here to avoid re-rendering the entire KanbanColumn component and all its nested children (like TaskCards) unless its inputs (id, label, tasks list, hasMore, or the onSeeMore handler) actually change.
@@ -19,6 +21,7 @@ export const KanbanColumn = memo(function KanbanColumn({
   tasks,
   hasMore,
   onSeeMore,
+  isLoading = false,
 }: KanbanColumnProps) {
   const { ref, isDropTarget } = useDroppable({
     id,
@@ -47,7 +50,13 @@ export const KanbanColumn = memo(function KanbanColumn({
         {tasks.map((task, idx) => (
           <TaskCard key={task.id} task={task} index={idx} />
         ))}
-        {tasks.length === 0 && (
+        {isLoading && (
+          <>
+            <TaskCardSkeleton />
+            <TaskCardSkeleton />
+          </>
+        )}
+        {tasks.length === 0 && !isLoading && (
           <div className="flex-1 flex flex-col justify-center items-center text-gray-500 border border-dashed border-[#2d2d2d] rounded-2xl p-4">
             <span className="text-sm font-semibold italic">No Tasks</span>
           </div>
@@ -55,7 +64,7 @@ export const KanbanColumn = memo(function KanbanColumn({
       </div>
 
       {/* See More Link */}
-      {hasMore && (
+      {hasMore && !isLoading && (
         <button
           type="button"
           onClick={() => onSeeMore(id as ProjectTask['status'])}

@@ -33,6 +33,7 @@ export function KanbanBoard({ slug }: KanbanBoardProps) {
     handleSeeMore,
     refreshKey,
     setRefreshKey,
+    isLoading,
   } = useKanbanTasks(slug, debouncedSearch);
 
   // 2. Manage tasks reordering logic
@@ -115,6 +116,7 @@ export function KanbanBoard({ slug }: KanbanBoardProps) {
               tasks={tasksByStatus[col.id] || []}
               hasMore={hasMoreByStatus[col.id] || false}
               onSeeMore={handleSeeMore}
+              isLoading={isLoading}
             />
           ))}
         </div>

@@ -11,14 +11,12 @@ const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await prisma.users.findUnique({
-    where: { email },
+    where: { email, deleted_at: null },
   });
 
   if (!user) {
     return errorResponse(res, 'User not found', 404);
   }
-
-  //TODO:check if user is soft deleted or not
 
   if (!user.is_active) {
     return errorResponse(res, 'User is not active', 401);

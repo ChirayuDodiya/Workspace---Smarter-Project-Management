@@ -87,6 +87,56 @@ const updateUserRole = asyncHandler(async (req, res) => {
   return successResponse(res, serializeUser(updatedUser), 'User role updated successfully');
 });
 
+// PUT: /api/v1/users/:id - toggle user's active state
+const toggleUserActiveState = asyncHandler(async (req, res) => {
+  const targetUserId = parseInt(req.params.id, 10);
+  if (isNaN(targetUserId)) {
+    return errorResponse(res, 'Invalid user ID', 400);
+  }
+
+  const targetUser = await prisma.users.findFirst({
+    where: { id: targetUserId },
+  });
+
+  if (!targetUser) {
+    return errorResponse(res, 'User not found', 404);
+  }
+
+  if (targetUser.deleted_at !== null) {
+    return errorResponse(
+      res,
+      'Cannot activate/deactivate a soft-deleted user. Please restore them first.',
+      400
+    );
+  }
+
+  const updatedUser = await prisma.users.update({
+    where: { id: targetUserId },
+    data: {
+      is_active: !targetUser.is_active,
+    },
+  });
+
+  try {
+    await createActivityLog({
+      subject_type: 'users',
+      subject_id: targetUserId,
+      user_id: req.user.id,
+      action: 'toggle_active_state',
+      properties: {
+        user_name: targetUser.name,
+        user_email: targetUser.email,
+        old_active_state: targetUser.is_active,
+        new_active_state: !targetUser.is_active,
+      },
+    });
+  } catch (logError) {
+    console.error('Failed to log activity:', logError);
+  }
+
+  return successResponse(res, serializeUser(updatedUser), 'User active state toggled successfully');
+});
+
 // DELETE: /api/v1/users/:id — Soft delete user (Admin only)
 const softDeleteUser = asyncHandler(async (req, res) => {
   const targetUserId = parseInt(req.params.id, 10);
@@ -169,4 +219,4 @@ const restoreUser = asyncHandler(async (req, res) => {
   return successResponse(res, serializeUser(updatedUser), 'User restored successfully');
 });
 
-export { listUsers, updateUserRole, softDeleteUser, restoreUser };
+export { listUsers, updateUserRole, softDeleteUser, restoreUser, toggleUserActiveState };

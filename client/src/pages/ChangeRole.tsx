@@ -96,7 +96,11 @@ export function ChangeRole() {
       setError('');
       const response = await api.delete(`/users/${userId}`);
       if (response.data && response.data.success) {
-        setUsers(users.map((u) => (u.id === userId ? { ...u, is_active: false } : u)));
+        setUsers(
+          users.map((u) =>
+            u.id === userId ? { ...u, is_active: false, deleted_at: new Date().toISOString() } : u
+          )
+        );
       }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string } } };
@@ -110,11 +114,27 @@ export function ChangeRole() {
       setError('');
       const response = await api.post(`/users/${userId}/restore`);
       if (response.data && response.data.success) {
-        setUsers(users.map((u) => (u.id === userId ? { ...u, is_active: true } : u)));
+        setUsers(
+          users.map((u) => (u.id === userId ? { ...u, is_active: true, deleted_at: null } : u))
+        );
       }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string } } };
       const msg = axiosError.response?.data?.message || 'Failed to restore user.';
+      setError(msg);
+    }
+  };
+
+  const handleToggleActiveState = async (userId: number) => {
+    try {
+      setError('');
+      const response = await api.put(`/users/${userId}/toggle-active`);
+      if (response.data && response.data.success) {
+        setUsers(users.map((u) => (u.id === userId ? { ...u, is_active: !u.is_active } : u)));
+      }
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const msg = axiosError.response?.data?.message || 'Failed to toggle user active state.';
       setError(msg);
     }
   };
@@ -149,7 +169,7 @@ export function ChangeRole() {
         {/* Members and Roles Grid */}
         <div className="space-y-4 pt-4">
           {/* Headers matching mockup style */}
-          <div className="flex items-center gap-6 pr-14">
+          <div className="flex items-center gap-6 pr-30">
             <div className="flex-1 text-center py-2 px-6 border border-white rounded-full text-white text-base font-semibold">
               Member name
             </div>
@@ -170,7 +190,7 @@ export function ChangeRole() {
                     <div
                       key={u.id}
                       className={`flex items-center gap-6 py-3 px-6 hover:bg-[#1a1a1a] rounded-2xl transition-all duration-150 ${
-                        !u.is_active ? 'opacity-50' : ''
+                        u.deleted_at ? 'opacity-40 bg-red-950/5' : !u.is_active ? 'opacity-60' : ''
                       }`}
                     >
                       {/* User profile */}
@@ -204,20 +224,38 @@ export function ChangeRole() {
                         </select>
                       </div>
 
-                      {/* Soft Delete / Restore Actions */}
-                      <div className="w-8 flex justify-end">
-                        {u.is_active ? (
-                          /* Red minus icon to deactivate */
+                      {/* Actions Column (w-24 for toggle and delete actions) */}
+                      <div className="w-24 flex justify-end gap-2.5">
+                        {/* 1. Toggle Active State (+ or -) */}
+                        {u.deleted_at ? (
                           <button
-                            onClick={() => handleSoftDeleteUser(u.id)}
+                            disabled
+                            className="p-1.5 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-600 opacity-40 cursor-not-allowed"
+                            title="Restore user to toggle active state"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2.5"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18 12H6" />
+                            </svg>
+                          </button>
+                        ) : u.is_active ? (
+                          <button
+                            onClick={() => handleToggleActiveState(u.id)}
                             disabled={isSelf}
                             className={`p-1.5 bg-[#4c1c1c] border border-red-500/50 rounded-lg text-red-400 transition-colors ${
                               isSelf
-                                ? 'opacity-40 cursor-not-allowed font-medium'
+                                ? 'opacity-40 cursor-not-allowed'
                                 : 'hover:bg-[#682525] cursor-pointer'
                             }`}
                             title={
-                              isSelf ? 'You cannot deactivate your own account' : 'Deactivate User'
+                              isSelf
+                                ? 'You cannot deactivate your own account'
+                                : 'Deactivate User (-)'
                             }
                           >
                             <svg
@@ -231,11 +269,10 @@ export function ChangeRole() {
                             </svg>
                           </button>
                         ) : (
-                          /* Green plus icon to restore */
                           <button
-                            onClick={() => handleRestoreUser(u.id)}
+                            onClick={() => handleToggleActiveState(u.id)}
                             className="p-1.5 bg-[#043314] hover:bg-[#074c1f] border border-[#10b981]/50 rounded-lg text-emerald-400 cursor-pointer transition-colors"
-                            title="Restore User"
+                            title="Activate User (+)"
                           >
                             <svg
                               className="w-4 h-4"
@@ -248,6 +285,54 @@ export function ChangeRole() {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 d="M12 4.5v15m7.5-7.5h-15"
+                              />
+                            </svg>
+                          </button>
+                        )}
+
+                        {/* 2. Soft Delete / Restore (Trash / Revert Icon) */}
+                        {u.deleted_at ? (
+                          <button
+                            onClick={() => handleRestoreUser(u.id)}
+                            className="p-1.5 bg-blue-950/40 hover:bg-blue-900/60 border border-blue-500/40 rounded-lg text-blue-400 cursor-pointer transition-colors"
+                            title="Restore User"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+                              />
+                            </svg>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleSoftDeleteUser(u.id)}
+                            disabled={isSelf}
+                            className={`p-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 transition-colors ${
+                              isSelf
+                                ? 'opacity-40 cursor-not-allowed'
+                                : 'hover:bg-zinc-700 cursor-pointer'
+                            }`}
+                            title={isSelf ? 'You cannot delete yourself' : 'Soft Delete User'}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                               />
                             </svg>
                           </button>

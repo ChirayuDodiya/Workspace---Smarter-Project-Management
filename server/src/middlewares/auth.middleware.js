@@ -1,21 +1,29 @@
 import jwt from 'jsonwebtoken';
-import { successResponse, errorResponse } from '../utils/response.js';
+import { errorResponse } from '../utils/response.js';
+import prisma from '../prisma/client.js';
 
 const authMiddleware = async (req, res, next) => {
+  const accessToken = req.cookies?.accessToken;
+
+  if (!accessToken) {
+    return errorResponse(res, 'unauthorized access', 401);
+  }
+
   try {
-    const token = req.cookies?.token;
-    if (!token) {
+    const decodedAccess = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+
+    const user = await prisma.users.findFirst({
+      where: { id: decodedAccess.id, deleted_at: null },
+    });
+
+    if (!user || !user.is_active) {
       return errorResponse(res, 'unauthorized access', 401);
     }
-    const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    if (decodedToken) {
-      req.user = decodedToken;
-      next();
-    } else {
-      return errorResponse(res, 'unauthorized access', 401);
-    }
-  } catch (error) {
-    return errorResponse(res, 'internal server error', 500);
+
+    req.user = user;
+    return next();
+  } catch (err) {
+    return errorResponse(res, 'unauthorized access', 401);
   }
 };
 

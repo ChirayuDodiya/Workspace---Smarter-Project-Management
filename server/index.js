@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { app } from './src/app.js';
+import './src/services/cron.service.js';
 
 const server = createServer(app);
 

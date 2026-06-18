@@ -12,7 +12,7 @@ export const rateLimiterMiddleware = async (req, res, next) => {
     let limit;
     let isGuest = true;
 
-    const token = req.cookies?.token;
+    const token = req.cookies?.accessToken;
     if (token) {
       try {
         const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_SECRET);

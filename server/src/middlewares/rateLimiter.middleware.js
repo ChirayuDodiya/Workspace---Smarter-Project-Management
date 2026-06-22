@@ -3,7 +3,7 @@ import { redis } from '../services/redis.service.js';
 import { errorResponse } from '../utils/response.js';
 
 export const rateLimiterMiddleware = async (req, res, next) => {
-  if (!redis || redis.status !== 'ready') {
+  if (process.env.NODE_ENV === 'test' || !redis || redis.status !== 'ready') {
     return next();
   }
 

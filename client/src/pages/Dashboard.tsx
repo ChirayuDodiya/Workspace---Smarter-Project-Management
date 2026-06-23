@@ -97,8 +97,8 @@ export function Dashboard() {
   }, [page, debouncedSearchQuery, statusFilter, refreshKey]);
 
   return (
-    <main className="p-8 text-white min-h-full bg-[#121212] select-none">
-      <div className="max-w-7xl mx-auto space-y-8 text-left">
+    <main className="p-4 sm:p-8 text-white min-h-full bg-[#121212] select-none">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 text-left">
         {/* Stats Component */}
         <div>
           <Stats key={refreshKey} />
@@ -106,14 +106,14 @@ export function Dashboard() {
 
         {/* Projects Section */}
         <div className="space-y-6 pt-4">
-          <div className="flex justify-between items-center w-full">
-            <div className="flex gap-2 items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <h2 className="text-2xl font-bold tracking-wide">Projects:</h2>
 
               {/* Quick Filters */}
-              <div className="flex gap-4 items-center">
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
                 {/* Search Input */}
-                <div className="relative w-180 px-4">
+                <div className="relative w-full sm:w-64 md:w-80">
                   <input
                     type="text"
                     placeholder="search project"
@@ -127,7 +127,7 @@ export function Dashboard() {
                 </div>
 
                 {/* Status Dropdown */}
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                   <select
                     value={statusFilter}
                     onChange={(e) => {
@@ -136,7 +136,7 @@ export function Dashboard() {
                       setProjects([]);
                       if (error) setError('');
                     }}
-                    className="h-10 pl-4 pr-8 bg-[#1e1e1e] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-lg text-gray-300 text-sm focus:outline-none transition-colors cursor-pointer appearance-none select-none font-semibold"
+                    className="w-full sm:w-auto h-10 pl-4 pr-8 bg-[#1e1e1e] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-lg text-gray-300 text-sm focus:outline-none transition-colors cursor-pointer appearance-none select-none font-semibold"
                   >
                     <option value="all">status: all</option>
                     <option value="planning">planning</option>
@@ -159,7 +159,7 @@ export function Dashboard() {
             <button
               type="button"
               onClick={() => setIsAddProjectModalOpen(true)}
-              className="h-10 px-6 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-base font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
+              className="h-10 w-full sm:w-auto px-6 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-base font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
             >
               Add Project
             </button>
@@ -177,7 +177,7 @@ export function Dashboard() {
             <div className="text-gray-500 text-sm italic">No projects found.</div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-6 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 {projects.map((project) => (
                   <ProjectCard
                     key={project.id}

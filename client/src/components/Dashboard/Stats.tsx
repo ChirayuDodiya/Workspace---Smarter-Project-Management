@@ -43,7 +43,7 @@ export function Stats() {
 
   if (error) {
     return (
-      <div className="w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55 flex flex-col justify-center items-center text-center">
+      <div className="w-full sm:w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55 flex flex-col justify-center items-center text-center">
         <div className="text-red-400 text-sm font-bold bg-red-950/30 border border-red-500/40 rounded-xl py-2.5 px-4">
           {error}
         </div>
@@ -58,7 +58,7 @@ export function Stats() {
   }
 
   return (
-    <div className="w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55">
+    <div className="w-full sm:w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55">
       <h2 className="text-xl font-bold mb-4">Stats:</h2>
       <div className="space-y-4 text-base font-semibold">
         <div className="flex gap-2">

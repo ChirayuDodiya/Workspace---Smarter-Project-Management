@@ -1,6 +1,6 @@
 export function ProjectCardSkeleton() {
   return (
-    <div className="p-6 bg-[#1e1e1e] border border-[#333] rounded-2xl h-40 flex flex-col justify-between animate-pulse select-none text-left">
+    <div className="p-6 bg-[#1e1e1e] border border-[#333] rounded-2xl min-h-40 h-auto sm:h-40 flex flex-col justify-between animate-pulse select-none text-left">
       <div className="flex justify-between items-start">
         <div className="space-y-3 w-1/2">
           {/* Name placeholder */}

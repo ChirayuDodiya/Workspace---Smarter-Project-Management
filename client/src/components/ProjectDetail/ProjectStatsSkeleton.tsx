@@ -1,6 +1,6 @@
 export function ProjectStatsSkeleton() {
   return (
-    <div className="w-[320px] bg-[#1e1e1e] border border-[#333]/40 rounded-3xl p-6 text-white text-left font-sans select-none min-h-62.5 flex flex-col justify-between animate-pulse">
+    <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333]/40 rounded-3xl p-6 text-white text-left font-sans select-none min-h-62.5 flex flex-col justify-between animate-pulse">
       <div>
         {/* Project Stats title placeholder */}
         <div className="h-6.5 bg-[#2d2d2d] rounded-md w-2/5 mb-6" />

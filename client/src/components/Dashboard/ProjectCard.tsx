@@ -33,7 +33,7 @@ export function ProjectCard({ project, onDeleteSuccess }: ProjectCardProps) {
   return (
     <Link
       to={`/projects/${project.slug}`}
-      className="p-6 bg-[#1e1e1e] border border-[#333] hover:border-emerald-500/50 rounded-2xl transition-all duration-200 select-none flex flex-col justify-between h-40 group cursor-pointer text-left"
+      className="p-6 bg-[#1e1e1e] border border-[#333] hover:border-emerald-500/50 rounded-2xl transition-all duration-200 select-none flex flex-col justify-between min-h-40 h-auto sm:h-40 group cursor-pointer text-left"
     >
       <div className="flex justify-between items-start">
         <div>

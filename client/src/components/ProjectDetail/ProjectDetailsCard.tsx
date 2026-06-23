@@ -119,7 +119,7 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
   const endDate = formatDate(project.end_date);
 
   return (
-    <div className="w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
+    <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
       {/* Warning message inside card */}
       {error && (
         <div className="mb-3 text-red-400 text-xs font-bold text-center bg-red-950/30 border border-red-500/40 rounded-xl py-1.5 px-3">

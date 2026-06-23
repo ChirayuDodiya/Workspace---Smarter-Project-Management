@@ -1,6 +1,6 @@
 export function StatsSkeleton() {
   return (
-    <div className="w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55 animate-pulse">
+    <div className="w-full sm:w-75 bg-[#052b14] border border-white/60 rounded-[1.8rem] p-6 text-white select-none min-h-55 animate-pulse">
       {/* Title skeleton */}
       <div className="h-7 bg-[#0b3d1f] rounded-md w-1/3 mb-6" />
 

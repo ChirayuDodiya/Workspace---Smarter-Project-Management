@@ -49,7 +49,7 @@ export function ProjectStats({ slug }: ProjectStatsProps) {
 
   if (error || !stats) {
     return (
-      <div className="w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none min-h-62.5 flex flex-col justify-center">
+      <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none min-h-62.5 flex flex-col justify-center">
         <span className="text-red-400 font-semibold">{error || 'No statistics available.'}</span>
       </div>
     );
@@ -63,7 +63,7 @@ export function ProjectStats({ slug }: ProjectStatsProps) {
   const done = task_count_by_status.done || 0;
 
   return (
-    <div className="w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
+    <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
       <h2 className="text-xl font-bold text-white mb-2">Project Stats</h2>
 
       <div className="space-y-2.5 font-semibold text-white">

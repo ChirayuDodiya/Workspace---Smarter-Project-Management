@@ -1,6 +1,6 @@
 export function TaskDetailSkeleton() {
   return (
-    <div className="max-w-2xl bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-8 shadow-2xl space-y-6 animate-pulse select-none">
+    <div className="max-w-2xl bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-2xl space-y-6 animate-pulse select-none">
       {/* 1. Title Row Skeleton */}
       <div className="space-y-1">
         <div className="h-4 bg-emerald-900/40 rounded w-12" />
@@ -14,7 +14,7 @@ export function TaskDetailSkeleton() {
       </div>
 
       {/* 3. Status & Priority Skeleton */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-1">
           <div className="h-4 bg-emerald-900/40 rounded w-14" />
           <div className="w-full h-11 bg-[#2d2d2d] rounded-xl border border-zinc-800" />
@@ -38,7 +38,7 @@ export function TaskDetailSkeleton() {
       </div>
 
       {/* 6. Estimated Hours & Actual Hours Skeleton */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-1">
           <div className="h-4 bg-emerald-900/40 rounded w-28" />
           <div className="w-full h-11 bg-[#2d2d2d] rounded-xl border border-zinc-800" />

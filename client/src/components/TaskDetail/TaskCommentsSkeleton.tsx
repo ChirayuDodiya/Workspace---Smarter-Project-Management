@@ -5,7 +5,7 @@ export function TaskCommentsSkeleton() {
       <div className="h-7.5 bg-emerald-900/40 rounded w-1/4 mb-3" />
 
       {/* Comments container skeleton */}
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl h-150 flex flex-col justify-between">
+      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-4 sm:p-6 shadow-2xl h-120 sm:h-150 flex flex-col justify-between">
         {/* Comment list skeleton */}
         <div className="flex-1 space-y-4 mb-4">
           {[1, 2, 3].map((i) => (

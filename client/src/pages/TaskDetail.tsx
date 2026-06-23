@@ -113,10 +113,10 @@ export function TaskDetail() {
 
   if (isLoading || !task) {
     return (
-      <main className="p-6 text-white min-h-full bg-[#121212] select-none">
-        <div className="max-w-6xl mx-auto flex gap-8 items-start">
+      <main className="p-4 sm:p-6 text-white min-h-full bg-[#121212] select-none">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
           {/* Left Column - Skeletons */}
-          <div className="flex-1 space-y-8 text-left">
+          <div className="flex-1 w-full space-y-8 text-left">
             <div className="flex items-center gap-6">
               {/* Back button skeleton */}
               <div className="w-12 h-10 bg-[#043314]/30 border border-white/30 rounded-xl animate-pulse" />
@@ -128,7 +128,7 @@ export function TaskDetail() {
           </div>
 
           {/* Right Column - Comments Skeleton */}
-          <div className="w-112.5 pt-16">
+          <div className="w-full lg:w-112.5 pt-0 lg:pt-16">
             <TaskCommentsSkeleton />
           </div>
         </div>
@@ -137,10 +137,10 @@ export function TaskDetail() {
   }
 
   return (
-    <main className="p-6 text-white min-h-full bg-[#121212] select-none">
-      <div className="max-w-6xl mx-auto flex gap-8 items-start">
+    <main className="p-4 sm:p-6 text-white min-h-full bg-[#121212] select-none">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
         {/* Left Column - Task Details */}
-        <div className="flex-1 space-y-8 text-left">
+        <div className="flex-1 w-full space-y-8 text-left">
           <div className="flex items-center gap-6">
             {/* Back button */}
             <Link
@@ -171,7 +171,7 @@ export function TaskDetail() {
 
         {/* Right Column - Comments */}
         {task && (
-          <div className="w-112.5 pt-16">
+          <div className="w-full lg:w-112.5 pt-0 lg:pt-16">
             <TaskComments taskId={task.id} onCommentAdded={triggerRefresh} />
           </div>
         )}

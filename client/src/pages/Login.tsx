@@ -76,14 +76,16 @@ export function Login() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#121212]">
+    <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full md:overflow-hidden bg-[#121212]">
       {/* Left side column: solid forest green */}
-      <div className="w-[45%] bg-[#043314] h-full"></div>
+      <div className="hidden md:block md:w-[45%] bg-[#043314] h-full"></div>
 
       {/* Right side column: Login form area */}
-      <div className="w-[55%] flex flex-col justify-center items-center h-full px-16 text-white">
+      <div className="w-full md:w-[55%] flex flex-col justify-center items-center min-h-screen md:h-full px-6 sm:px-16 py-10 text-white overflow-y-auto">
         <form onSubmit={handleSubmit} className="w-full max-w-105 flex flex-col items-center">
-          <h1 className="text-white text-6xl font-medium mb-12 tracking-wide">Login</h1>
+          <h1 className="text-white text-4xl sm:text-6xl font-medium mb-8 sm:mb-12 tracking-wide">
+            Login
+          </h1>
 
           {/* Registration Success Banner */}
           {registrationSuccess && !serverError && (

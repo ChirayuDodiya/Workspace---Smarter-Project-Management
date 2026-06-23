@@ -391,7 +391,7 @@ export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
     return (
       <div className="space-y-2 w-full text-left">
         <h3 className="text-2xl font-bold tracking-wide text-emerald-400">Comments:</h3>
-        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl text-red-400 text-sm font-semibold">
+        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl text-red-400 text-sm font-semibold">
           {error}
         </div>
       </div>
@@ -402,7 +402,7 @@ export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
     <div className="space-y-2 w-full text-left">
       <h3 className="text-2xl font-bold tracking-wide text-emerald-400">Comments:</h3>
 
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl h-150 flex flex-col justify-between">
+      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-4 sm:p-6 shadow-2xl h-120 sm:h-150 flex flex-col justify-between">
         {/* Scrollable comment list */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4 scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
           {comments.length > 0 ? (

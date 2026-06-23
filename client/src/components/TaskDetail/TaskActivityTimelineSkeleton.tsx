@@ -5,7 +5,7 @@ export function TaskActivityTimelineSkeleton() {
       <div className="h-6 bg-emerald-900/40 rounded w-1/4 mb-3" />
 
       {/* Activity Timeline container skeleton */}
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl min-h-40 flex flex-col justify-center">
+      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl min-h-40 flex flex-col justify-center">
         <div className="relative border-l border-emerald-800/20 ml-2 pl-4 space-y-5 py-1">
           {/* Connector Dot and row placeholders */}
           {[1, 2].map((i) => (

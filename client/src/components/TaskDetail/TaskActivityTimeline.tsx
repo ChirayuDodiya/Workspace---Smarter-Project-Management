@@ -110,7 +110,7 @@ export function TaskActivityTimeline({ taskId, activityTrigger }: TaskActivityTi
     return (
       <div className="space-y-2 w-full text-left">
         <h3 className="text-xl font-bold tracking-wide text-emerald-400">Activity Timeline:</h3>
-        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl text-red-400 text-sm font-semibold">
+        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl text-red-400 text-sm font-semibold">
           {error}
         </div>
       </div>
@@ -121,7 +121,7 @@ export function TaskActivityTimeline({ taskId, activityTrigger }: TaskActivityTi
     <div className="space-y-2 w-full text-left">
       <h3 className="text-xl font-bold tracking-wide text-emerald-400">Activity Timeline:</h3>
 
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-6 shadow-2xl max-h-75 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
+      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl max-h-75 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
         {logs.length > 0 ? (
           <div className="relative border-l border-emerald-800/40 ml-2 pl-4 space-y-4 py-1">
             {logs.map((log) => (

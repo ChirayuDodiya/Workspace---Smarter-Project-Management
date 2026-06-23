@@ -247,7 +247,7 @@ export function TaskDetailComponent({
   const isStatusDone = localStatus === 'done' || pendingStatus === 'done';
 
   return (
-    <div className="max-w-2xl bg-[#1e1e1e]/95 border border-white/20 rounded-4xl p-8 shadow-2xl space-y-6">
+    <div className="max-w-2xl bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-2xl space-y-6">
       {/* 1. Title Row */}
       <div className="space-y-1">
         <label className="block text-emerald-400 text-sm font-semibold">Title:</label>
@@ -322,7 +322,7 @@ export function TaskDetailComponent({
       </div>
 
       {/* 3. Status & Priority (Side by side) */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Status */}
         <div className="space-y-1">
           <label className="block text-emerald-400 text-sm font-semibold">Status:</label>
@@ -472,7 +472,7 @@ export function TaskDetailComponent({
       </div>
 
       {/* 6. Estimated Hours & Actual Hours (Side by side) */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* Estimated Hours */}
         <div className="space-y-1">
           <label className="block text-emerald-400 text-sm font-semibold">Estimated Hours:</label>

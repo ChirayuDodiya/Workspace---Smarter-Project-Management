@@ -17,7 +17,8 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "prisma:reset": "npx prisma migrate reset --force"
   },
   "author": "chirayu dodiya",
   "license": "ISC",

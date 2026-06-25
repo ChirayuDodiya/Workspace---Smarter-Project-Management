@@ -2,6 +2,7 @@ import { successResponse, errorResponse, paginatedResponse } from '../../utils/r
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import prisma from '../../prisma/client.js';
 import { serializeUser } from '../../serializers/user.serializer.js';
+import { Parser } from 'json2csv';
 import { serializeProject } from '../../serializers/project.serializer.js';
 import { serializeTask } from '../../serializers/task.serializer.js';
 import { createActivityLog } from '../../services/activity.service.js';
@@ -575,6 +576,62 @@ const removeTeamMember = asyncHandler(async (req, res) => {
   return successResponse(res, null, 'Member removed successfully', 200);
 });
 
+// GET: /api/v1/projects/:slug/export-tasks - Export project tasks to CSV
+const exportProjectTasks = asyncHandler(async (req, res) => {
+  const { slug } = req.params;
+
+  const project = await prisma.projects.findFirst({
+    where: { slug, deleted_at: null },
+  });
+
+  if (!project) {
+    return errorResponse(res, 'Project not found', 404);
+  }
+
+  // Fetch all tasks for this project that are not soft-deleted
+  const tasks = await prisma.tasks.findMany({
+    where: { project_id: project.id, deleted_at: null },
+    include: {
+      users: true, // to include assignee details
+    },
+    orderBy: {
+      sort_order: 'asc',
+    },
+  });
+
+  // Map task properties to columns
+  const data = tasks.map((task) => ({
+    ID: task.id,
+    Title: task.title,
+    Description: task.description || '',
+    Status: task.status,
+    Priority: task.priority,
+    'Assigned To': task.users ? task.users.email : 'Unassigned',
+    'Due Date': task.due_date ? task.due_date.toISOString().split('T')[0] : '',
+    'Estimated Hours': task.estimated_hours ? task.estimated_hours.toString() : '',
+    'Actual Hours': task.actual_hours ? task.actual_hours.toString() : '',
+  }));
+
+  const fields = [
+    'ID',
+    'Title',
+    'Description',
+    'Status',
+    'Priority',
+    'Assigned To',
+    'Due Date',
+    'Estimated Hours',
+    'Actual Hours',
+  ];
+
+  const json2csvParser = new Parser({ fields });
+  const csv = json2csvParser.parse(data);
+
+  res.header('Content-Type', 'text/csv');
+  res.attachment(`${slug}-tasks.csv`);
+  return res.send(csv);
+});
+
 export {
   listProjects,
   createProject,
@@ -588,4 +645,5 @@ export {
   listManagers,
   addTeamMember,
   removeTeamMember,
+  exportProjectTasks,
 };

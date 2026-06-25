@@ -30,6 +30,30 @@ export function ProjectCard({ project, onDeleteSuccess }: ProjectCardProps) {
     }
   };
 
+  const handleDownloadCSV = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      const response = await api.get(`/projects/${project.slug}/export-tasks`, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${project.slug}-tasks.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      console.error('Failed to download CSV:', err);
+      alert('Failed to download tasks CSV.');
+    }
+  };
+
   return (
     <Link
       to={`/projects/${project.slug}`}
@@ -53,6 +77,26 @@ export function ProjectCard({ project, onDeleteSuccess }: ProjectCardProps) {
         </div>
 
         <div className="flex gap-2 items-center">
+          <button
+            type="button"
+            onClick={handleDownloadCSV}
+            className="p-1.5 text-xs font-semibold rounded-lg bg-[#052b14] border border-emerald-500/35 hover:bg-[#0b4020] hover:border-emerald-400 text-emerald-400 transition-colors cursor-pointer select-none focus:outline-none flex items-center justify-center"
+            title="Download Tasks CSV"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={handleDelete}

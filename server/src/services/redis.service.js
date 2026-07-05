@@ -50,7 +50,7 @@ export const invalidateProjectStats = async (slug) => {
   if (!redis) return;
   try {
     await redis.del(`project:stats:${slug}`);
-    console.log(`Redis stats cache invalidated for project: ${slug}`);
+    // console.log(`Redis stats cache invalidated for project: ${slug}`);
   } catch (err) {
     console.error('Redis invalidateProjectStats failed:', err.message);
   }

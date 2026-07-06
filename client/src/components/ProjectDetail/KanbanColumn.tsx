@@ -28,24 +28,31 @@ export const KanbanColumn = memo(function KanbanColumn({
     collisionPriority: CollisionPriority.Low,
   });
 
+  const columnLabels: Record<string, string> = {
+    todo: 'To Do',
+    in_progress: 'In Progress',
+    in_review: 'In Review',
+    done: 'Done',
+  };
+
   return (
     <div
       ref={ref}
-      className={`flex flex-col bg-[#121212] border rounded-3xl p-3 min-h-125 transition-all duration-200 ${
+      className={`flex flex-col rounded-2xl p-3 min-h-125 transition-all duration-200 ${
         isDropTarget
-          ? 'border-emerald-500 shadow-lg shadow-emerald-500/5 bg-[#141d17]/40'
-          : 'border-white'
+          ? 'bg-emerald-950/10 border border-emerald-500/40 shadow-lg shadow-emerald-500/5'
+          : 'bg-[#181818] border border-zinc-800/80'
       }`}
     >
       {/* Column Title */}
-      <div className="flex items-center justify-center py-2 bg-[#043314] border border-white rounded-2xl text-white text-lg font-medium tracking-wide">
-        {label}
+      <div className="flex items-center justify-center py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl text-zinc-300 text-sm font-bold tracking-wide">
+        {columnLabels[label] || label}
       </div>
 
       {/* Task Cards List */}
       <div
         id={`column-list-${id}`}
-        className="flex-1 flex flex-col gap-4 mt-4 overflow-y-auto pr-1"
+        className="flex-1 flex flex-col gap-3 mt-3 overflow-y-auto pr-0.5"
       >
         {tasks.map((task, idx) => (
           <TaskCard key={task.id} task={task} index={idx} />
@@ -57,8 +64,8 @@ export const KanbanColumn = memo(function KanbanColumn({
           </>
         )}
         {tasks.length === 0 && !isLoading && (
-          <div className="flex-1 flex flex-col justify-center items-center text-gray-500 border border-dashed border-[#2d2d2d] rounded-2xl p-4">
-            <span className="text-sm font-semibold italic">No Tasks</span>
+          <div className="flex-1 flex flex-col justify-center items-center text-zinc-700 border border-dashed border-zinc-800 rounded-xl p-4">
+            <span className="text-xs font-semibold italic">No tasks</span>
           </div>
         )}
       </div>
@@ -68,7 +75,7 @@ export const KanbanColumn = memo(function KanbanColumn({
         <button
           type="button"
           onClick={() => onSeeMore(id as ProjectTask['status'])}
-          className="mt-4 py-1.5 text-emerald-400 hover:text-emerald-300 font-semibold text-sm text-center hover:underline cursor-pointer focus:outline-none border-t border-[#333]/40"
+          className="mt-3 py-1.5 text-emerald-400 hover:text-emerald-300 font-semibold text-xs text-center hover:underline cursor-pointer focus:outline-none border-t border-zinc-800/60"
         >
           See More
         </button>

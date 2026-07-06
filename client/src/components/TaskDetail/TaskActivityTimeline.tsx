@@ -108,47 +108,38 @@ export function TaskActivityTimeline({ taskId, activityTrigger }: TaskActivityTi
 
   if (error) {
     return (
-      <div className="space-y-2 w-full text-left">
-        <h3 className="text-xl font-bold tracking-wide text-emerald-400">Activity Timeline:</h3>
-        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl text-red-400 text-sm font-semibold">
-          {error}
-        </div>
+      <div className="text-red-300 text-sm font-medium py-6 text-center">
+        {error}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2 w-full text-left">
-      <h3 className="text-xl font-bold tracking-wide text-emerald-400">Activity Timeline:</h3>
+    <div className="h-120 sm:h-140 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+      {logs.length > 0 ? (
+        <div className="relative border-l border-zinc-800 ml-2 pl-5 space-y-4 py-1">
+          {logs.map((log) => (
+            <div key={log.id} className="relative text-left">
+              {/* Connector Dot */}
+              <div className="absolute -left-6 top-1.5 w-2 h-2 bg-emerald-600 rounded-full border-2 border-[#181818]" />
 
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl max-h-75 overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
-        {logs.length > 0 ? (
-          <div className="relative border-l border-emerald-800/40 ml-2 pl-4 space-y-4 py-1">
-            {logs.map((log) => (
-              <div key={log.id} className="relative group text-left">
-                {/* Connector Dot */}
-                <div className="absolute -left-5.25 top-1.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[#1e1e1e]" />
-
-                <div>
-                  <p className="text-sm text-gray-200 font-medium">{formatActivityLog(log)}</p>
-                  <p className="text-[10px] text-gray-500 mt-0.5">
-                    {new Date(log.created_at).toLocaleDateString([], {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-6">
-            <p className="text-gray-500 italic text-sm">No activity logs recorded yet.</p>
-          </div>
-        )}
-      </div>
+              <p className="text-sm text-zinc-200 font-medium leading-snug">{formatActivityLog(log)}</p>
+              <p className="text-[10px] text-zinc-600 mt-0.5">
+                {new Date(log.created_at).toLocaleDateString([], {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-zinc-600 italic text-sm">No activity recorded yet.</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -119,7 +119,7 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
   const endDate = formatDate(project.end_date);
 
   return (
-    <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
+    <div className="w-full sm:w-75 bg-[#181818] border border-zinc-800/80 rounded-2xl p-5 text-white text-left select-none shrink-0">
       {/* Warning message inside card */}
       {error && (
         <div className="mb-3 text-red-400 text-xs font-bold text-center bg-red-950/30 border border-red-500/40 rounded-xl py-1.5 px-3">
@@ -129,7 +129,7 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
 
       {/* Project Name Field */}
       {editingField === 'name' ? (
-        <div className="mb-2">
+        <div className="mb-4">
           <input
             type="text"
             value={editName}
@@ -137,7 +137,7 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
               setEditName(e.target.value);
               if (error) setError('');
             }}
-            className="w-full h-9 bg-[#121212] border border-emerald-500 rounded-lg text-white px-2 focus:outline-none text-base"
+            className="w-full h-9 bg-[#121212] border border-[#098032] rounded-lg text-white px-3 focus:outline-none text-base font-bold"
             autoFocus
             onBlur={() => void handleSave('name')}
             onKeyDown={(e) => {
@@ -151,19 +151,19 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
         </div>
       ) : (
         <h2
-          className="text-xl font-bold text-white mb-2 cursor-pointer hover:bg-white/5 rounded px-1 transition-colors"
+          className="text-lg font-bold text-white mb-4 cursor-pointer hover:text-emerald-400 transition-colors"
           onClick={() => handleStartEdit('name')}
-          title="Click to edit Name"
+          title="Click to edit name"
         >
           {project.name}
         </h2>
       )}
 
-      <div className="space-y-2.5 font-semibold text-white">
+      <div className="space-y-4">
         {/* Status Field */}
-        {editingField === 'status' ? (
-          <div className="flex items-center">
-            <span className="text-emerald-400 text-sm mr-2">Status: </span>
+        <div>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-1">Status</span>
+          {editingField === 'status' ? (
             <select
               value={editStatus}
               onChange={(e) =>
@@ -171,7 +171,7 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
                   e.target.value as 'planning' | 'active' | 'on_hold' | 'completed' | 'archived'
                 )
               }
-              className="bg-[#121212] border border-emerald-500 rounded-lg text-white text-sm px-2 py-1 focus:outline-none cursor-pointer flex-1"
+              className="w-full bg-[#121212] border border-[#098032] rounded-lg text-white text-sm px-3 py-1.5 focus:outline-none cursor-pointer"
               autoFocus
               onBlur={() => void handleSave('status')}
               onKeyDown={(e) => {
@@ -188,71 +188,70 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
               <option value="completed">completed</option>
               <option value="archived">archived</option>
             </select>
-          </div>
-        ) : (
-          <div
-            className="cursor-pointer hover:bg-white/5 rounded px-1 transition-colors"
-            onClick={() => handleStartEdit('status')}
-            title="Click to edit Status"
-          >
-            <span className="text-emerald-400">Status: </span>
-            <span className="capitalize">{project.status}</span>
-          </div>
-        )}
+          ) : (
+            <span
+              className="text-sm font-semibold text-white capitalize cursor-pointer hover:text-emerald-400 transition-colors"
+              onClick={() => handleStartEdit('status')}
+              title="Click to edit status"
+            >
+              {project.status}
+            </span>
+          )}
+        </div>
 
         {/* Dates Field */}
-        {editingField === 'dates' ? (
-          <div
-            className="flex flex-col gap-1.5 p-1 bg-[#121212]/50 rounded-xl border border-white/5"
-            onBlur={handleDatesBlur}
-          >
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-400 w-10">Start:</span>
-              <input
-                type="date"
-                value={editStartDate}
-                onChange={(e) => {
-                  setEditStartDate(e.target.value);
-                  if (error) setError('');
-                }}
-                className="flex-1 bg-[#121212] border border-[#333] hover:border-emerald-700 rounded px-1 py-0.5 text-xs text-white [&::-webkit-calendar-picker-indicator]:invert"
-                autoFocus
-              />
+        <div>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-1">Dates</span>
+          {editingField === 'dates' ? (
+            <div
+              className="flex flex-col gap-1.5 p-2 bg-[#121212]/70 rounded-xl border border-zinc-800"
+              onBlur={handleDatesBlur}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-500 w-9 shrink-0">Start</span>
+                <input
+                  type="date"
+                  value={editStartDate}
+                  onChange={(e) => {
+                    setEditStartDate(e.target.value);
+                    if (error) setError('');
+                  }}
+                  className="flex-1 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] rounded px-2 py-0.5 text-xs text-white [&::-webkit-calendar-picker-indicator]:invert focus:outline-none"
+                  autoFocus
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-500 w-9 shrink-0">End</span>
+                <input
+                  type="date"
+                  value={editEndDate}
+                  onChange={(e) => {
+                    setEditEndDate(e.target.value);
+                    if (error) setError('');
+                  }}
+                  className="flex-1 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] rounded px-2 py-0.5 text-xs text-white [&::-webkit-calendar-picker-indicator]:invert focus:outline-none"
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-400 w-10">End:</span>
-              <input
-                type="date"
-                value={editEndDate}
-                onChange={(e) => {
-                  setEditEndDate(e.target.value);
-                  if (error) setError('');
-                }}
-                className="flex-1 bg-[#121212] border border-[#333] hover:border-emerald-700 rounded px-1 py-0.5 text-xs text-white [&::-webkit-calendar-picker-indicator]:invert"
-              />
-            </div>
-          </div>
-        ) : (
-          <div
-            className="cursor-pointer hover:bg-white/5 rounded px-1 transition-colors"
-            onClick={() => handleStartEdit('dates')}
-            title="Click to edit Dates"
-          >
-            <span className="text-emerald-400">Dates: </span>
-            <span>
-              {startDate} to {endDate}
+          ) : (
+            <span
+              className="text-sm font-semibold text-white cursor-pointer hover:text-emerald-400 transition-colors"
+              onClick={() => handleStartEdit('dates')}
+              title="Click to edit dates"
+            >
+              {startDate} → {endDate || '—'}
             </span>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Owner Field */}
-        {editingField === 'owner' ? (
-          <div className="flex items-center">
-            <span className="text-emerald-400 text-sm mr-2">Owner: </span>
+        <div>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-1">Owner</span>
+          {editingField === 'owner' ? (
             <select
               value={editOwnerId}
               onChange={(e) => setEditOwnerId(e.target.value)}
-              className="bg-[#121212] border border-emerald-500 rounded-lg text-white text-sm px-2 py-1 focus:outline-none cursor-pointer flex-1"
+              className="w-full bg-[#121212] border border-[#098032] rounded-lg text-white text-sm px-3 py-1.5 focus:outline-none cursor-pointer"
               autoFocus
               onBlur={() => void handleSave('owner')}
               onKeyDown={(e) => {
@@ -270,17 +269,16 @@ export function ProjectDetailsCard({ project, onProjectUpdated }: ProjectDetails
                 </option>
               ))}
             </select>
-          </div>
-        ) : (
-          <div
-            className="cursor-pointer hover:bg-white/5 rounded px-1 transition-colors"
-            onClick={() => handleStartEdit('owner')}
-            title="Click to edit Owner"
-          >
-            <span className="text-emerald-400">Owner: </span>
-            <span className="capitalize">{project.owner?.name || 'Unknown'}</span>
-          </div>
-        )}
+          ) : (
+            <span
+              className="text-sm font-semibold text-white capitalize cursor-pointer hover:text-emerald-400 transition-colors"
+              onClick={() => handleStartEdit('owner')}
+              title="Click to edit owner"
+            >
+              {project.owner?.name || '—'}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

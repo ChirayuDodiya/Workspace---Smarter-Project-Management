@@ -49,8 +49,8 @@ export function ProjectStats({ slug }: ProjectStatsProps) {
 
   if (error || !stats) {
     return (
-      <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none min-h-62.5 flex flex-col justify-center">
-        <span className="text-red-400 font-semibold">{error || 'No statistics available.'}</span>
+      <div className="w-full sm:w-70 bg-[#181818] border border-zinc-800/80 rounded-2xl p-5 text-white text-left select-none shrink-0 flex flex-col justify-center min-h-40">
+        <span className="text-red-400 text-sm font-semibold">{error || 'No statistics available.'}</span>
       </div>
     );
   }
@@ -63,41 +63,42 @@ export function ProjectStats({ slug }: ProjectStatsProps) {
   const done = task_count_by_status.done || 0;
 
   return (
-    <div className="w-full sm:w-[320px] bg-[#1e1e1e] border border-[#333] rounded-3xl p-6 text-white text-left font-sans select-none">
-      <h2 className="text-xl font-bold text-white mb-2">Project Stats</h2>
+    <div className="w-full sm:w-70 bg-[#181818] border border-zinc-800/80 rounded-2xl p-5 text-white text-left select-none shrink-0">
+      <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4">Project Stats</h2>
 
-      <div className="space-y-2.5 font-semibold text-white">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4">
         <div>
-          <span className="text-emerald-400">Logged Hours: </span>
-          <span>
-            {Number(total_hours) > 0 ? parseFloat(total_hours).toFixed(1).replace(/\.0$/, '') : '0'}
-            h
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">Logged Hours</span>
+          <span className="text-white font-bold text-lg">
+            {Number(total_hours) > 0 ? parseFloat(total_hours).toFixed(1).replace(/\.0$/, '') : '0'}h
           </span>
         </div>
 
         <div>
-          <span className="text-emerald-400">Overdue Tasks: </span>
-          <span className={overdue_count > 0 ? 'text-red-400' : ''}>{overdue_count}</span>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">Overdue</span>
+          <span className={`font-bold text-lg ${overdue_count > 0 ? 'text-red-400' : 'text-white'}`}>
+            {overdue_count}
+          </span>
         </div>
 
         <div>
-          <span className="text-emerald-400">Todo Tasks: </span>
-          <span>{todo}</span>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">To Do</span>
+          <span className="text-white font-bold text-lg">{todo}</span>
         </div>
 
         <div>
-          <span className="text-emerald-400">In Progress: </span>
-          <span>{inProgress}</span>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">In Progress</span>
+          <span className="text-white font-bold text-lg">{inProgress}</span>
         </div>
 
         <div>
-          <span className="text-emerald-400">In Review: </span>
-          <span>{inReview}</span>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">In Review</span>
+          <span className="text-white font-bold text-lg">{inReview}</span>
         </div>
 
         <div>
-          <span className="text-emerald-400">Completed: </span>
-          <span>{done}</span>
+          <span className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-0.5">Completed</span>
+          <span className="text-emerald-400 font-bold text-lg">{done}</span>
         </div>
       </div>
     </div>

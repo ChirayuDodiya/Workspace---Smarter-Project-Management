@@ -108,21 +108,26 @@ export function Dashboard() {
         <div className="space-y-6 pt-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <h2 className="text-2xl font-bold tracking-wide">Projects:</h2>
+              <h2 className="text-2xl font-bold tracking-tight">Projects</h2>
 
               {/* Quick Filters */}
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full sm:w-auto">
                 {/* Search Input */}
                 <div className="relative w-full sm:w-64 md:w-80">
+                  <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
                   <input
                     type="text"
-                    placeholder="search project"
+                    placeholder="Search projects"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
                       if (error) setError('');
                     }}
-                    className="w-full h-10 px-4 bg-[#1e1e1e] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none transition-colors"
+                    className="w-full h-10 pl-10 pr-4 bg-[#181818] border border-zinc-800 hover:border-zinc-750 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/30 rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none transition-all"
                   />
                 </div>
 
@@ -136,9 +141,9 @@ export function Dashboard() {
                       setProjects([]);
                       if (error) setError('');
                     }}
-                    className="w-full sm:w-auto h-10 pl-4 pr-8 bg-[#1e1e1e] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-lg text-gray-300 text-sm focus:outline-none transition-colors cursor-pointer appearance-none select-none font-semibold"
+                    className="w-full sm:w-auto h-10 pl-4 pr-10 bg-[#181818] border border-zinc-800 hover:border-zinc-750 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/30 rounded-xl text-zinc-300 text-sm focus:outline-none transition-all cursor-pointer appearance-none select-none font-semibold"
                   >
-                    <option value="all">status: all</option>
+                    <option value="all">Status: all</option>
                     <option value="planning">planning</option>
                     <option value="active">active</option>
                     <option value="on_hold">on_hold</option>
@@ -146,7 +151,7 @@ export function Dashboard() {
                     <option value="archived">archived</option>
                   </select>
                   {/* Arrow Indicator */}
-                  <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
+                  <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-zinc-500">
                     <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
                       <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                     </svg>
@@ -159,7 +164,7 @@ export function Dashboard() {
             <button
               type="button"
               onClick={() => setIsAddProjectModalOpen(true)}
-              className="h-10 w-full sm:w-auto px-6 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-base font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
+              className="h-10 w-full sm:w-auto px-5 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-md hover:shadow-[0_4px_12px_rgba(4,92,34,0.2)] focus:outline-none focus:ring-2 focus:ring-[#098032] focus:ring-offset-2 focus:ring-offset-[#121212] border border-transparent"
             >
               Add Project
             </button>
@@ -174,10 +179,10 @@ export function Dashboard() {
 
           {/* Projects Listing */}
           {projects.length === 0 && !isLoading ? (
-            <div className="text-gray-500 text-sm italic">No projects found.</div>
+            <div className="text-zinc-500 text-sm italic py-8">No projects found.</div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5">
                 {projects.map((project) => (
                   <ProjectCard
                     key={project.id}
@@ -204,7 +209,7 @@ export function Dashboard() {
                 <div className="flex justify-center pt-8 pb-12">
                   <button
                     onClick={() => setPage((prev) => prev + 1)}
-                    className="px-8 py-2.5 bg-[#1e1e1e] hover:bg-[#2d2d2d] border border-[#333] hover:border-emerald-500/50 text-white rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md hover:shadow-emerald-500/10 focus:outline-none"
+                    className="px-8 py-2.5 bg-[#181818] hover:bg-[#202020] border border-zinc-800 hover:border-zinc-700/80 text-white rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer shadow-md hover:shadow-emerald-500/10 focus:outline-none"
                   >
                     See More
                   </button>

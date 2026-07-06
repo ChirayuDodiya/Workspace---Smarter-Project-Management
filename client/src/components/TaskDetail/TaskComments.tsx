@@ -187,17 +187,16 @@ function CommentNode({
   };
 
   return (
-    <div className="space-y-2">
-      {/* Comment Box */}
+    <div className="space-y-2 w-full text-left">
       <div
         onDoubleClick={() => onReply(comment)}
-        className="group p-3.5 bg-[#121212]/50 border border-white/5 hover:border-emerald-800/40 rounded-2xl transition-colors duration-200 cursor-pointer select-none text-left"
+        className="group p-3 bg-[#121212] border border-zinc-800/60 hover:border-zinc-700 rounded-xl transition-colors duration-150 cursor-pointer select-none"
         title="Double-click to reply"
       >
-        <div className="flex justify-between items-start text-xs text-gray-400 mb-1">
-          <span className="font-semibold text-emerald-400 capitalize">{comment.user.name}</span>
+        <div className="flex justify-between items-start mb-1.5">
+          <span className="text-xs font-semibold text-emerald-400 capitalize">{comment.user.name}</span>
           <div className="flex items-center gap-2">
-            <span className="text-[10px]">
+            <span className="text-[10px] text-zinc-600">
               {new Date(comment.created_at).toLocaleDateString([], {
                 month: 'short',
                 day: 'numeric',
@@ -212,29 +211,20 @@ function CommentNode({
                   e.stopPropagation();
                   void handleDelete();
                 }}
-                className="text-red-500 hover:text-red-400 transition-colors p-0.5 rounded cursor-pointer"
+                className="text-zinc-700 hover:text-red-400 transition-colors p-0.5 rounded cursor-pointer"
                 title="Delete comment"
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
             )}
           </div>
         </div>
-        <div className="text-sm text-gray-200 wrap-break-word pl-1 flex flex-col items-start gap-1">
-          <div className="flex items-start gap-2 w-full">
-            {depth > 0 && <span className="text-emerald-500 font-bold shrink-0">-&gt;</span>}
+
+        <div className="text-sm text-zinc-300 pl-0 flex flex-col gap-1">
+          <div className="flex items-start gap-1.5 w-full">
+            {depth > 0 && <span className="text-emerald-600 font-bold shrink-0 text-xs">↪</span>}
             {isEditing ? (
               <input
                 type="text"
@@ -242,30 +232,25 @@ function CommentNode({
                 onChange={(e) => setEditBody(e.target.value)}
                 onBlur={handleSave}
                 onKeyDown={handleKeyDown}
-                className="flex-1 bg-[#1e1e1e] border border-emerald-700 focus:border-emerald-500 rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
+                className="flex-1 bg-[#181818] border border-zinc-700 focus:border-[#098032] rounded-lg px-2 py-1 text-sm text-white focus:outline-none"
                 autoFocus
               />
             ) : (
               <span
-                onClick={() => {
-                  if (canEdit) {
-                    setIsEditing(true);
-                  }
-                }}
+                onClick={() => { if (canEdit) setIsEditing(true); }}
                 className={canEdit ? 'cursor-pointer hover:text-emerald-300 transition-colors' : ''}
-                title={canEdit ? 'Click to edit comment' : undefined}
+                title={canEdit ? 'Click to edit' : undefined}
               >
                 {comment.body}
               </span>
             )}
           </div>
-          {error && <span className="text-red-500 text-xs mt-1 block pl-1">{error}</span>}
+          {error && <span className="text-red-400 text-xs">{error}</span>}
         </div>
       </div>
 
-      {/* Replies */}
       {comment.replies && comment.replies.length > 0 && (
-        <div className="pl-4 border-l border-emerald-800/40 space-y-2 ml-2">
+        <div className="pl-4 border-l border-zinc-800 space-y-2 ml-2">
           {comment.replies.map((reply) => (
             <CommentNode
               key={reply.id}
@@ -389,82 +374,75 @@ export function TaskComments({ taskId, onCommentAdded }: TaskCommentsProps) {
 
   if (error) {
     return (
-      <div className="space-y-2 w-full text-left">
-        <h3 className="text-2xl font-bold tracking-wide text-emerald-400">Comments:</h3>
-        <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-6 shadow-2xl text-red-400 text-sm font-semibold">
-          {error}
-        </div>
+      <div className="text-red-300 text-sm font-medium py-6 text-center">
+        {error}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2 w-full text-left">
-      <h3 className="text-2xl font-bold tracking-wide text-emerald-400">Comments:</h3>
-
-      <div className="bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-4 sm:p-6 shadow-2xl h-120 sm:h-150 flex flex-col justify-between">
-        {/* Scrollable comment list */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4 scrollbar-thin scrollbar-thumb-emerald-950 scrollbar-track-transparent">
-          {comments.length > 0 ? (
-            comments.map((comment) => (
-              <CommentNode
-                key={comment.id}
-                comment={comment}
-                onReply={setReplyingTo}
-                currentUser={currentUser}
-                onCommentUpdated={(id, body) => {
-                  setComments((prev) => updateCommentInTree(prev, id, body));
-                }}
-                onCommentDeleted={(id) => {
-                  setComments((prev) => deleteCommentFromTree(prev, id));
-                }}
-                onCommentAdded={onCommentAdded}
-              />
-            ))
-          ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-500 italic text-sm">
-                No comments yet. Be the first to reply!
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Comment actions and text input */}
-        <div className="space-y-2 mt-auto">
-          {replyingTo && (
-            <div className="flex items-center justify-between bg-emerald-950/40 border border-emerald-800/50 rounded-xl px-4 py-2 text-xs">
-              <span className="text-gray-300 truncate">
-                Replying to{' '}
-                <span className="text-emerald-400 font-semibold">{replyingTo.user?.name}</span>: "
-                {replyingTo.body}"
-              </span>
-              <button
-                type="button"
-                onClick={() => setReplyingTo(null)}
-                className="text-gray-500 hover:text-red-400 font-bold focus:outline-none cursor-pointer"
-              >
-                X
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmitComment} className="flex gap-2 items-center">
-            <input
-              type="text"
-              placeholder="type you comment here,double click on comment to reply"
-              value={newCommentBody}
-              onChange={(e) => setNewCommentBody(e.target.value)}
-              className="flex-1 h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white text-xs placeholder-gray-500 transition-colors"
+    <div className="h-120 sm:h-140 flex flex-col">
+      {/* Scrollable comment list */}
+      <div className="flex-1 overflow-y-auto pr-1 space-y-3 mb-4 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <CommentNode
+              key={comment.id}
+              comment={comment}
+              onReply={setReplyingTo}
+              currentUser={currentUser}
+              onCommentUpdated={(id, body) => {
+                setComments((prev) => updateCommentInTree(prev, id, body));
+              }}
+              onCommentDeleted={(id) => {
+                setComments((prev) => deleteCommentFromTree(prev, id));
+              }}
+              onCommentAdded={onCommentAdded}
             />
+          ))
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <p className="text-zinc-600 italic text-sm">No comments yet. Be the first!</p>
+          </div>
+        )}
+      </div>
+
+      {/* Input area */}
+      <div className="space-y-2 mt-auto pt-3 border-t border-zinc-800">
+        {replyingTo && (
+          <div className="flex items-center justify-between bg-emerald-950/30 border border-emerald-800/40 rounded-xl px-3 py-2 text-xs">
+            <span className="text-zinc-400 truncate">
+              Replying to{' '}
+              <span className="text-emerald-400 font-semibold">{replyingTo.user?.name}</span>:{' '}
+              "{replyingTo.body}"
+            </span>
             <button
-              type="submit"
-              className="w-11 h-11 bg-[#043314] hover:bg-[#074c1f] border border-white text-white rounded-xl flex items-center justify-center cursor-pointer transition-colors duration-200 shadow-md"
+              type="button"
+              onClick={() => setReplyingTo(null)}
+              className="text-zinc-600 hover:text-red-400 font-bold focus:outline-none cursor-pointer ml-2 shrink-0"
             >
-              <span className="text-lg font-bold">-&gt;</span>
+              ✕
             </button>
-          </form>
-        </div>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmitComment} className="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Write a comment… double-click to reply"
+            value={newCommentBody}
+            onChange={(e) => setNewCommentBody(e.target.value)}
+            className="flex-1 h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-xs placeholder-zinc-600 transition-all"
+          />
+          <button
+            type="submit"
+            className="w-10 h-10 bg-[#045c22] hover:bg-[#074c1f] text-white rounded-xl flex items-center justify-center cursor-pointer transition-all shadow-sm border border-transparent shrink-0"
+          >
+            <svg className="w-4 h-4 rotate-90" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </form>
       </div>
     </div>
   );

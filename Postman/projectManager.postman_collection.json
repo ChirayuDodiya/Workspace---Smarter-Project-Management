@@ -160,13 +160,13 @@
               }
             },
             "url": {
-              "raw": "{{pm}}/comments/31",
+              "raw": "{{pm}}/comments/1",
               "host": [
                 "{{pm}}"
               ],
               "path": [
                 "comments",
-                "31"
+                "1"
               ]
             }
           },
@@ -185,13 +185,13 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{pm}}/comments/31",
+              "raw": "{{pm}}/comments/1",
               "host": [
                 "{{pm}}"
               ],
               "path": [
                 "comments",
-                "31"
+                "1"
               ]
             }
           },
@@ -389,7 +389,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"slug\": \"project-manager-2\"\r\n}",
+              "raw": "{\r\n    \"status\":\"completed\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -397,13 +397,13 @@
               }
             },
             "url": {
-              "raw": "{{pm}}/projects/project-manager-1",
+              "raw": "{{pm}}/projects/project-2",
               "host": [
                 "{{pm}}"
               ],
               "path": [
                 "projects",
-                "project-manager-1"
+                "project-2"
               ]
             }
           },
@@ -415,13 +415,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{pm}}/projects/project-manager-1",
+              "raw": "{{pm}}/projects/project-3",
               "host": [
                 "{{pm}}"
               ],
               "path": [
                 "projects",
-                "project-manager-1"
+                "project-3"
               ]
             }
           },

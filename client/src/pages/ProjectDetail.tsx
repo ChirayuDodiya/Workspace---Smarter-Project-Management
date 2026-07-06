@@ -114,7 +114,7 @@ export function ProjectDetail() {
           <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 w-full">
             <div className="flex flex-col xl:flex-row items-start gap-6 w-full xl:w-auto">
               {/* Back button skeleton */}
-              <div className="w-12 h-10 bg-[#043314]/30 border border-white/30 rounded-xl" />
+              <div className="w-10 h-9 bg-zinc-800/60 border border-zinc-800 rounded-xl animate-pulse" />
 
               <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
                 {/* Project Details Card Skeleton */}
@@ -133,7 +133,7 @@ export function ProjectDetail() {
               <div className="w-full max-w-md h-11 bg-[#1a1a1a] border border-[#333] rounded-xl animate-pulse" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 border border-white/20 rounded-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border border-zinc-800/60 rounded-2xl">
               {['todo', 'in_progress', 'in_review', 'done'].map((status) => (
                 <div
                   key={status}
@@ -157,65 +157,49 @@ export function ProjectDetail() {
 
   return (
     <main className="p-4 sm:p-8 text-white min-h-full bg-[#121212] select-none">
-      <div className="mx-auto space-y-6 sm:space-y-8 text-left">
-        <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6 w-full">
-          <div className="flex flex-col xl:flex-row items-start gap-6 w-full xl:w-auto">
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              {/* Back button */}
-              <Link
-                to="/"
-                className="flex items-center justify-center w-12 h-10 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-xl font-medium tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
-                title="Back to Dashboard"
-              >
-                &lt;-
-              </Link>
+      <div className="mx-auto space-y-5 sm:space-y-6 text-left">
 
-              {/* Active Viewers presence */}
-              {viewers.length > 0 && (
-                <div className="h-10 flex items-center gap-2 bg-[#1a1a1e]/60 border border-neutral-800/80 px-4 rounded-full select-none shadow-sm flex-1 sm:flex-initial">
-                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                    Viewing:
-                  </span>
-                  <span className="text-xs font-semibold text-emerald-400 truncate max-w-40">
-                    {viewers.map((v) => v.name).join(', ')}
-                  </span>
-                </div>
-              )}
+        {/* Top Bar: Back | Viewers | (spacer) | Action Buttons */}
+        <div className="flex items-center gap-3 w-full">
+          {/* Back button */}
+          <Link
+            to="/"
+            className="flex items-center justify-center w-9 h-9 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 rounded-xl text-zinc-400 hover:text-white text-base font-medium transition-all duration-150 cursor-pointer shadow-sm focus:outline-none shrink-0"
+            title="Back to Dashboard"
+          >
+            ←
+          </Link>
+
+          {/* Active Viewers presence badge */}
+          {viewers.length > 0 && (
+            <div className="h-9 flex items-center gap-2 bg-zinc-900/60 border border-zinc-800/80 px-3 rounded-xl select-none shadow-sm">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                Viewing
+              </span>
+              <span className="text-xs font-semibold text-emerald-400 truncate max-w-48">
+                {viewers.map((v) => v.name).join(', ')}
+              </span>
             </div>
+          )}
 
-            <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
-              {/* Project Details Card */}
-              <ProjectDetailsCard project={project} onProjectUpdated={handleProjectUpdated} />
+          {/* Spacer */}
+          <div className="flex-1" />
+        </div>
 
-              {/* Project Statistics */}
-              {slug && <ProjectStats slug={slug} />}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex sm:flex-row gap-3 w-full xl:w-auto xl:self-end">
-            {/* Add Task Button */}
-            <button
-              type="button"
-              onClick={() => setIsAddTaskModalOpen(true)}
-              className="flex-1 sm:flex-none h-10 px-6 bg-[#043314] border border-white hover:bg-[#074c1f] rounded-xl text-white text-base font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
-            >
-              Add Task
-            </button>
-
-            {/* Member List Button */}
-            <button
-              type="button"
-              onClick={() => setIsMembersModalOpen(true)}
-              className="flex-1 sm:flex-none h-10 px-6 bg-[#1e1e1e] border border-white hover:bg-[#2d2d2d] rounded-xl text-white text-base font-semibold tracking-wide transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#333]"
-            >
-              member list
-            </button>
-          </div>
+        {/* Project Info Row: Details Card + Stats Card */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <ProjectDetailsCard project={project} onProjectUpdated={handleProjectUpdated} />
+          {slug && <ProjectStats slug={slug} />}
         </div>
 
         {/* Kanban Board */}
-        {slug && <KanbanBoard slug={slug} />}
+        {slug && (
+          <KanbanBoard
+            slug={slug}
+            onAddTask={() => setIsAddTaskModalOpen(true)}
+            onMembers={() => setIsMembersModalOpen(true)}
+          />
+        )}
 
         {/* Add Task Modal */}
         {slug && (

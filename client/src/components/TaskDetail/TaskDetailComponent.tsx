@@ -247,10 +247,11 @@ export function TaskDetailComponent({
   const isStatusDone = localStatus === 'done' || pendingStatus === 'done';
 
   return (
-    <div className="max-w-2xl bg-[#1e1e1e]/95 border border-white/20 rounded-3xl sm:rounded-4xl p-5 sm:p-8 shadow-2xl space-y-6">
-      {/* 1. Title Row */}
-      <div className="space-y-1">
-        <label className="block text-emerald-400 text-sm font-semibold">Title:</label>
+    <div className="bg-[#181818] border border-zinc-800/80 rounded-2xl p-5 shadow-sm space-y-5">
+
+      {/* 1. Title */}
+      <div className="space-y-1.5">
+        <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Title</label>
         {editingField === 'title' ? (
           <div>
             <input
@@ -269,26 +270,26 @@ export function TaskDetailComponent({
                   setEditingField(null);
                 }
               }}
-              className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm"
+              className="w-full h-10 px-3 bg-[#121212] border border-[#098032] focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm font-semibold"
               autoFocus
             />
             {fieldErrors.title && (
-              <p className="text-red-400 text-xs font-semibold mt-1">{fieldErrors.title}</p>
+              <p className="text-red-400 text-xs font-medium mt-1">{fieldErrors.title}</p>
             )}
           </div>
         ) : (
           <div
             onClick={() => setEditingField('title')}
-            className="w-full min-h-11 px-4 py-2.5 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 rounded-xl flex items-center cursor-pointer text-white text-sm font-semibold capitalize"
+            className="w-full min-h-10 px-3 py-2.5 bg-[#121212] border border-zinc-800 hover:border-zinc-700 rounded-xl flex items-center cursor-pointer text-white text-sm font-semibold"
           >
             {task.title}
           </div>
         )}
       </div>
 
-      {/* 2. Description Row */}
-      <div className="space-y-1">
-        <label className="block text-emerald-400 text-sm font-semibold">Description:</label>
+      {/* 2. Description */}
+      <div className="space-y-1.5">
+        <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Description</label>
         {editingField === 'description' ? (
           <textarea
             value={editDesc}
@@ -301,41 +302,36 @@ export function TaskDetailComponent({
               }
             }}
             rows={4}
-            className="w-full p-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-2xl text-white text-sm resize-none"
+            className="w-full p-3 bg-[#121212] border border-[#098032] focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm resize-none"
             autoFocus
             placeholder="Enter task description"
           />
         ) : (
           <div
             onClick={() => setEditingField('description')}
-            className="w-full min-h-24 p-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 rounded-2xl cursor-pointer text-sm"
+            className="w-full min-h-20 p-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 rounded-xl cursor-pointer text-sm"
           >
             {task.description ? (
-              <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {task.description}
-              </p>
+              <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">{task.description}</p>
             ) : (
-              <p className="text-gray-500 italic">No description. Click to add details...</p>
+              <p className="text-zinc-600 italic">No description. Click to add details…</p>
             )}
           </div>
         )}
       </div>
 
-      {/* 3. Status & Priority (Side by side) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        {/* Status */}
-        <div className="space-y-1">
-          <label className="block text-emerald-400 text-sm font-semibold">Status:</label>
+      {/* 3. Status & Priority */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Status</label>
           <select
             value={localStatus}
             disabled={!canEditStatusAndAssignee}
             onChange={(e) =>
-              void handleStatusChange(
-                e.target.value as 'todo' | 'in_progress' | 'in_review' | 'done'
-              )
+              void handleStatusChange(e.target.value as 'todo' | 'in_progress' | 'in_review' | 'done')
             }
-            className={`w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer capitalize font-semibold transition-colors ${
-              !canEditStatusAndAssignee ? 'opacity-50 cursor-not-allowed border-zinc-700' : ''
+            className={`w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer font-semibold transition-colors ${
+              !canEditStatusAndAssignee ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {['todo', 'in_progress', 'in_review', 'done'].map((st) => {
@@ -345,56 +341,47 @@ export function TaskDetailComponent({
                   key={st}
                   value={st}
                   disabled={!allowed}
-                  className={`${!allowed ? 'text-gray-600 bg-zinc-900' : 'text-white bg-[#1e1e1e]'}`}
+                  className={`${!allowed ? 'text-zinc-600 bg-zinc-900' : 'text-white bg-[#121212]'}`}
                 >
-                  {statusLabelMap[st]} {!allowed && '(Disallowed)'}
+                  {statusLabelMap[st]} {!allowed && '(Locked)'}
                 </option>
               );
             })}
           </select>
         </div>
 
-        {/* Priority */}
-        <div className="space-y-1">
-          <label className="block text-emerald-400 text-sm font-semibold">Priority:</label>
+        <div className="space-y-1.5">
+          <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Priority</label>
           <select
             value={task.priority}
             onChange={(e) => void saveField('priority', e.target.value)}
-            className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer capitalize font-semibold transition-colors"
+            className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer font-semibold transition-colors"
           >
-            <option value="low" className="bg-[#1e1e1e]">
-              Low
-            </option>
-            <option value="medium" className="bg-[#1e1e1e]">
-              Medium
-            </option>
-            <option value="high" className="bg-[#1e1e1e]">
-              High
-            </option>
-            <option value="critical" className="bg-[#1e1e1e]">
-              Critical
-            </option>
+            <option value="low" className="bg-[#121212]">Low</option>
+            <option value="medium" className="bg-[#121212]">Medium</option>
+            <option value="high" className="bg-[#121212]">High</option>
+            <option value="critical" className="bg-[#121212]">Critical</option>
           </select>
         </div>
       </div>
 
       {/* 4. Assigned To */}
-      <div className="space-y-1 relative" ref={assigneeDropdownRef}>
-        <label className="block text-emerald-400 text-sm font-semibold">Assigned To:</label>
+      <div className="space-y-1.5 relative" ref={assigneeDropdownRef}>
+        <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Assigned To</label>
         <div
           onClick={() => {
             if (isOwner) {
               setShowAssigneeDropdown(!showAssigneeDropdown);
             }
           }}
-          className={`w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus-within:border-emerald-500 rounded-xl flex items-center justify-between cursor-pointer text-sm text-white transition-colors ${
-            !isOwner ? 'opacity-50 cursor-not-allowed border-zinc-700' : ''
+          className={`w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus-within:border-[#098032] rounded-xl flex items-center justify-between cursor-pointer text-sm text-white transition-colors ${
+            !isOwner ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           {task.assigned_to ? (
             <span className="font-medium capitalize">{task.assigned_to.name}</span>
           ) : (
-            <span className="text-gray-500 italic">Unassigned</span>
+            <span className="text-zinc-600 italic">Unassigned</span>
           )}
 
           <div className="flex items-center gap-2">
@@ -405,27 +392,26 @@ export function TaskDetailComponent({
                   e.stopPropagation();
                   void saveAssignee(null);
                 }}
-                className="text-gray-500 hover:text-red-400 font-semibold text-xs focus:outline-none"
+                className="text-zinc-600 hover:text-red-400 font-semibold text-xs focus:outline-none"
               >
                 Clear
               </button>
             )}
             {isOwner && (
-              <span className="border-t-4 border-t-gray-500 border-x-4 border-x-transparent inline-block w-0 h-0" />
+              <span className="border-t-4 border-t-zinc-500 border-x-4 border-x-transparent inline-block w-0 h-0" />
             )}
           </div>
         </div>
 
-        {/* Assignee Search Dropdown */}
         {showAssigneeDropdown && (
-          <div className="absolute left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden max-h-56 flex flex-col">
-            <div className="p-2 border-b border-white/5">
+          <div className="absolute left-0 right-0 mt-1 bg-[#181818] border border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden max-h-52 flex flex-col">
+            <div className="p-2 border-b border-zinc-800">
               <input
                 type="text"
-                placeholder="Search members..."
+                placeholder="Search members…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 px-3 bg-[#121212] border border-white/10 focus:border-emerald-500 focus:outline-none rounded-lg text-white text-xs"
+                className="w-full h-8 px-3 bg-[#121212] border border-zinc-800 focus:border-[#098032] focus:outline-none rounded-lg text-white text-xs"
                 autoFocus
               />
             </div>
@@ -435,20 +421,18 @@ export function TaskDetailComponent({
                   <div
                     key={member.id}
                     onClick={() => void saveAssignee(member.id)}
-                    className={`px-4 py-2.5 text-sm hover:bg-[#043314] cursor-pointer flex items-center justify-between capitalize ${
+                    className={`px-3 py-2 text-sm hover:bg-zinc-800 cursor-pointer capitalize ${
                       task.assigned_to?.id === member.id
-                        ? 'bg-[#043314]/55 font-semibold text-emerald-400'
-                        : ''
+                        ? 'bg-emerald-950/30 text-emerald-400'
+                        : 'text-white'
                     }`}
                   >
-                    <div className="flex flex-col">
-                      <span className="text-white text-xs">{member.name}</span>
-                      <span className="text-[10px] text-gray-500 normal-case">{member.email}</span>
-                    </div>
+                    <span className="block font-medium text-xs">{member.name}</span>
+                    <span className="text-[10px] text-zinc-500 normal-case">{member.email}</span>
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-3 text-xs text-gray-500 text-center">
+                <div className="px-3 py-3 text-xs text-zinc-600 text-center">
                   No team members found
                 </div>
               )}
@@ -458,8 +442,8 @@ export function TaskDetailComponent({
       </div>
 
       {/* 5. Due Date */}
-      <div className="space-y-1">
-        <label className="block text-emerald-400 text-sm font-semibold">Due Date:</label>
+      <div className="space-y-1.5">
+        <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Due Date</label>
         <input
           type="date"
           value={editDueDate}
@@ -467,15 +451,14 @@ export function TaskDetailComponent({
             setEditDueDate(e.target.value);
             void saveField('due_date', e.target.value || null);
           }}
-          className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer transition-colors [&::-webkit-calendar-picker-indicator]:invert"
+          className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer transition-colors [&::-webkit-calendar-picker-indicator]:invert"
         />
       </div>
 
-      {/* 6. Estimated Hours & Actual Hours (Side by side) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        {/* Estimated Hours */}
-        <div className="space-y-1">
-          <label className="block text-emerald-400 text-sm font-semibold">Estimated Hours:</label>
+      {/* 6. Estimated & Actual Hours */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Estimated Hours</label>
           {editingField === 'estimated_hours' ? (
             <div>
               <input
@@ -497,36 +480,33 @@ export function TaskDetailComponent({
                     setEditingField(null);
                   }
                 }}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm"
+                className="w-full h-10 px-3 bg-[#121212] border border-[#098032] focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm"
                 autoFocus
                 placeholder="e.g. 10.5"
               />
               {fieldErrors.estimated_hours && (
-                <p className="text-red-400 text-[10px] font-semibold mt-1">
-                  {fieldErrors.estimated_hours}
-                </p>
+                <p className="text-red-400 text-xs font-medium mt-1">{fieldErrors.estimated_hours}</p>
               )}
             </div>
           ) : (
             <div
               onClick={() => setEditingField('estimated_hours')}
-              className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 rounded-xl flex items-center justify-between cursor-pointer text-sm font-semibold"
+              className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 rounded-xl flex items-center justify-between cursor-pointer text-sm font-semibold"
             >
-              <span>
+              <span className="text-white">
                 {task.estimated_hours !== null && task.estimated_hours !== undefined
                   ? `${task.estimated_hours} hrs`
-                  : 'Not set'}
+                  : <span className="text-zinc-600 italic font-normal">Not set</span>}
               </span>
-              <span className="text-gray-500 text-xs">hours</span>
+              <span className="text-zinc-600 text-xs">hrs</span>
             </div>
           )}
         </div>
 
-        {/* Actual Hours */}
         {isStatusDone ? (
-          <div className="space-y-1">
-            <label className="block text-emerald-400 text-sm font-semibold">
-              Actual Hours: <span className="text-red-500">*</span>
+          <div className="space-y-1.5">
+            <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+              Actual Hours <span className="text-red-400">*</span>
             </label>
             {editingField === 'actual_hours' ? (
               <div>
@@ -553,27 +533,25 @@ export function TaskDetailComponent({
                       setEditingField(null);
                     }
                   }}
-                  className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm"
+                  className="w-full h-10 px-3 bg-[#121212] border border-[#098032] focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm"
                   autoFocus
                   placeholder="e.g. 8.5"
                 />
                 {fieldErrors.actual_hours && (
-                  <p className="text-red-400 text-[10px] font-semibold mt-1">
-                    {fieldErrors.actual_hours}
-                  </p>
+                  <p className="text-red-400 text-xs font-medium mt-1">{fieldErrors.actual_hours}</p>
                 )}
               </div>
             ) : (
               <div
                 onClick={() => setEditingField('actual_hours')}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 rounded-xl flex items-center justify-between cursor-pointer text-sm font-semibold"
+                className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 rounded-xl flex items-center justify-between cursor-pointer text-sm font-semibold"
               >
-                <span>
+                <span className="text-white">
                   {task.actual_hours !== null && task.actual_hours !== undefined
                     ? `${task.actual_hours} hrs`
-                    : 'Not set'}
+                    : <span className="text-zinc-600 italic font-normal">Not set</span>}
                 </span>
-                <span className="text-gray-500 text-xs">hours</span>
+                <span className="text-zinc-600 text-xs">hrs</span>
               </div>
             )}
           </div>
@@ -583,27 +561,17 @@ export function TaskDetailComponent({
       </div>
 
       {/* Divider */}
-      <hr className="border-white/10" />
+      <hr className="border-zinc-800" />
 
-      {/* Delete Task Button Row */}
-      <div className="flex justify-end pt-2">
+      {/* Delete Button */}
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={handleDeleteTask}
-          className="px-6 py-2 bg-[#4c1c1c] border border-red-500/40 hover:bg-[#682525] rounded-xl text-red-200 text-sm font-semibold transition-colors duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center gap-2"
+          className="h-9 px-5 bg-red-950/40 border border-red-500/40 hover:bg-red-950/70 hover:border-red-500/60 rounded-xl text-red-400 hover:text-red-300 text-sm font-semibold transition-all cursor-pointer focus:outline-none flex items-center gap-2"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
           Delete Task
         </button>

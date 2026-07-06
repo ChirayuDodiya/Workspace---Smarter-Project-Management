@@ -123,241 +123,255 @@ export function AddTaskModal({ isOpen, onClose, slug }: AddTaskModalProps) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-opacity duration-300">
-      <div className="w-full max-w-2xl bg-[#121212]/95 border border-white/20 rounded-4xl p-8 shadow-2xl text-left select-none text-white">
-        <h3 className="text-3xl font-semibold text-center mb-8 tracking-wide">Add Task</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-[#181818] border border-zinc-800/80 rounded-2xl shadow-2xl text-white overflow-hidden">
 
-        {serverError && (
-          <div className="mb-6 bg-red-950/40 border border-red-500/80 text-red-200 px-4 py-3 rounded-xl text-center text-sm font-medium">
-            {serverError}
-          </div>
-        )}
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80">
+          <h3 className="text-base font-bold text-white tracking-wide">Add Task</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all cursor-pointer focus:outline-none"
+            title="Close"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title field */}
-          <div className="space-y-1">
-            <label className="block text-emerald-400 text-sm font-semibold">
-              Title: <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter task title"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (errors.title) setErrors((prev) => ({ ...prev, title: '' }));
-              }}
-              className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white placeholder-gray-500 text-sm transition-colors"
-            />
-            {errors.title && (
-              <p className="text-red-400 text-xs font-semibold mt-1">{errors.title}</p>
-            )}
-          </div>
+        {/* Modal Body */}
+        <div className="px-6 py-5 overflow-y-auto max-h-[80vh]">
+          {serverError && (
+            <div className="mb-5 bg-red-950/40 border border-red-500/40 text-red-300 px-4 py-2.5 rounded-xl text-sm font-medium">
+              {serverError}
+            </div>
+          )}
 
-          {/* Description field */}
-          <div className="space-y-1">
-            <label className="block text-emerald-400 text-sm font-semibold">Description:</label>
-            <textarea
-              placeholder="Enter task description"
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-2xl text-white placeholder-gray-500 text-sm transition-colors resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {/* Status Field */}
-            <div className="space-y-1">
-              <label className="block text-emerald-400 text-sm font-semibold">Status:</label>
-              <select
-                value={status}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Title field */}
+            <div className="space-y-1.5">
+              <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+                Title <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter task title"
+                value={title}
                 onChange={(e) => {
-                  const val = e.target.value as 'todo' | 'in_progress' | 'in_review' | 'done';
-                  setStatus(val);
-                  if (val !== 'done' && errors.actualHours) {
-                    setErrors((prev) => ({ ...prev, actualHours: '' }));
-                  }
+                  setTitle(e.target.value);
+                  if (errors.title) setErrors((prev) => ({ ...prev, title: '' }));
                 }}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer"
-              >
-                <option value="todo">todo</option>
-                <option value="in_progress">in_progress</option>
-                <option value="in_review">in_review</option>
-                <option value="done">done</option>
-              </select>
+                className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/20 focus:outline-none rounded-xl text-white placeholder-zinc-600 text-sm transition-all"
+              />
+              {errors.title && (
+                <p className="text-red-400 text-xs font-medium">{errors.title}</p>
+              )}
             </div>
 
-            {/* Priority Field */}
-            <div className="space-y-1">
-              <label className="block text-emerald-400 text-sm font-semibold">Priority:</label>
-              <select
-                value={priority}
-                onChange={(e) =>
-                  setPriority(e.target.value as 'low' | 'medium' | 'high' | 'critical')
-                }
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer"
-              >
-                <option value="low">low</option>
-                <option value="medium">medium</option>
-                <option value="high">high</option>
-                <option value="critical">critical</option>
-              </select>
+            {/* Description field */}
+            <div className="space-y-1.5">
+              <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+                Description
+              </label>
+              <textarea
+                placeholder="Enter task description (optional)"
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full p-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/20 focus:outline-none rounded-xl text-white placeholder-zinc-600 text-sm transition-all resize-none"
+              />
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            {/* Assigned To Field */}
-            <div className="space-y-1 relative" ref={dropdownRef}>
-              <label className="block text-emerald-400 text-sm font-semibold">Assigned To:</label>
-              <div
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus-within:border-emerald-500 rounded-xl flex items-center justify-between cursor-pointer text-sm text-gray-300"
-              >
-                {selectedUser ? (
-                  <span className="text-white font-medium capitalize">{selectedUser.name}</span>
-                ) : (
-                  <span className="text-gray-500">Unassigned</span>
-                )}
-                {selectedUser && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedUser(null);
-                    }}
-                    className="text-gray-500 hover:text-red-400 ml-2 font-bold focus:outline-none"
-                    title="Unassign User"
-                  >
-                    ✕
-                  </button>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Status Field */}
+              <div className="space-y-1.5">
+                <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    const val = e.target.value as 'todo' | 'in_progress' | 'in_review' | 'done';
+                    setStatus(val);
+                    if (val !== 'done' && errors.actualHours) {
+                      setErrors((prev) => ({ ...prev, actualHours: '' }));
+                    }
+                  }}
+                  className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer"
+                >
+                  <option value="todo">To Do</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="in_review">In Review</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+
+              {/* Priority Field */}
+              <div className="space-y-1.5">
+                <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Priority</label>
+                <select
+                  value={priority}
+                  onChange={(e) =>
+                    setPriority(e.target.value as 'low' | 'medium' | 'high' | 'critical')
+                  }
+                  className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Assigned To Field */}
+              <div className="space-y-1.5 relative" ref={dropdownRef}>
+                <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Assigned To</label>
+                <div
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus-within:border-[#098032] rounded-xl flex items-center justify-between cursor-pointer text-sm"
+                >
+                  {selectedUser ? (
+                    <span className="text-white font-medium capitalize">{selectedUser.name}</span>
+                  ) : (
+                    <span className="text-zinc-600">Unassigned</span>
+                  )}
+                  {selectedUser && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedUser(null);
+                      }}
+                      className="text-zinc-600 hover:text-red-400 ml-2 font-bold focus:outline-none"
+                      title="Unassign"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {showUserDropdown && (
+                  <div className="absolute left-0 right-0 mt-1 bg-[#181818] border border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden max-h-52 flex flex-col">
+                    <div className="p-2 border-b border-zinc-800">
+                      <input
+                        type="text"
+                        placeholder="Search users..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full h-8 px-3 bg-[#121212] border border-zinc-800 focus:border-[#098032] focus:outline-none rounded-lg text-white text-xs"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="overflow-y-auto flex-1 max-h-40">
+                      {filteredUsers.length > 0 ? (
+                        filteredUsers.map((userItem) => (
+                          <div
+                            key={userItem.id}
+                            onClick={() => {
+                              setSelectedUser(userItem);
+                              setShowUserDropdown(false);
+                              setSearchQuery('');
+                            }}
+                            className={`px-3 py-2 text-sm hover:bg-zinc-800 cursor-pointer capitalize ${
+                              selectedUser?.id === userItem.id
+                                ? 'bg-emerald-950/30 text-emerald-400'
+                                : 'text-white'
+                            }`}
+                          >
+                            <span className="block font-medium">{userItem.name}</span>
+                            <span className="text-xs text-zinc-500 normal-case">{userItem.email}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-3 text-xs text-zinc-600 text-center">No users found</div>
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
 
-              {/* User searchable drop-down container */}
-              {showUserDropdown && (
-                <div className="absolute left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden max-h-56 flex flex-col">
-                  <div className="p-2 border-b border-white/5">
-                    <input
-                      type="text"
-                      placeholder="Search users..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full h-9 px-3 bg-[#121212] border border-white/10 focus:border-emerald-500 focus:outline-none rounded-lg text-white text-xs"
-                      autoFocus
-                    />
-                  </div>
-                  <div className="overflow-y-auto flex-1 max-h-40">
-                    {filteredUsers.length > 0 ? (
-                      filteredUsers.map((userItem) => (
-                        <div
-                          key={userItem.id}
-                          onClick={() => {
-                            setSelectedUser(userItem);
-                            setShowUserDropdown(false);
-                            setSearchQuery('');
-                          }}
-                          className={`px-4 py-2.5 text-sm hover:bg-[#043314] cursor-pointer flex flex-col capitalize ${
-                            selectedUser?.id === userItem.id
-                              ? 'bg-[#043314]/55 font-semibold text-emerald-400'
-                              : ''
-                          }`}
-                        >
-                          <span className="text-white">{userItem.name}</span>
-                          <span className="text-xs text-gray-400 normal-case">
-                            {userItem.email}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-4 py-3 text-xs text-gray-500 text-center">
-                        No users found
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* Due Date Field */}
+              <div className="space-y-1.5">
+                <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">Due Date</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white text-sm cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
+                />
+              </div>
             </div>
 
-            {/* Due Date Field */}
-            <div className="space-y-1">
-              <label className="block text-emerald-400 text-sm font-semibold">Due Date:</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white text-sm cursor-pointer [&::-webkit-calendar-picker-indicator]:invert"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {/* Estimated Hours Field */}
-            <div className="space-y-1">
-              <label className="block text-emerald-400 text-sm font-semibold">
-                Estimated Hours:
-              </label>
-              <input
-                type="number"
-                step="0.1"
-                min="0.1"
-                placeholder="e.g. 10.5"
-                value={estimatedHours}
-                onChange={(e) => {
-                  setEstimatedHours(e.target.value);
-                  if (errors.estimatedHours) setErrors((prev) => ({ ...prev, estimatedHours: '' }));
-                }}
-                className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white placeholder-gray-500 text-sm transition-colors"
-              />
-              {errors.estimatedHours && (
-                <p className="text-red-400 text-xs font-semibold mt-1">{errors.estimatedHours}</p>
-              )}
-            </div>
-
-            {/* Actual Hours Field (Show actual_hours only if status is done) */}
-            {status === 'done' ? (
-              <div className="space-y-1">
-                <label className="block text-emerald-400 text-sm font-semibold">
-                  Actual Hours: <span className="text-red-500">*</span>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Estimated Hours Field */}
+              <div className="space-y-1.5">
+                <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+                  Estimated Hours
                 </label>
                 <input
                   type="number"
                   step="0.1"
                   min="0.1"
-                  placeholder="e.g. 8.5"
-                  value={actualHours}
+                  placeholder="e.g. 10.5"
+                  value={estimatedHours}
                   onChange={(e) => {
-                    setActualHours(e.target.value);
-                    if (errors.actualHours) setErrors((prev) => ({ ...prev, actualHours: '' }));
+                    setEstimatedHours(e.target.value);
+                    if (errors.estimatedHours) setErrors((prev) => ({ ...prev, estimatedHours: '' }));
                   }}
-                  className="w-full h-11 px-4 bg-[#1e1e1e] border border-[#043314] hover:border-emerald-700 focus:border-emerald-500 focus:outline-none rounded-xl text-white placeholder-gray-500 text-sm transition-colors"
+                  className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white placeholder-zinc-600 text-sm"
                 />
-                {errors.actualHours && (
-                  <p className="text-red-400 text-xs font-semibold mt-1">{errors.actualHours}</p>
+                {errors.estimatedHours && (
+                  <p className="text-red-400 text-xs font-medium">{errors.estimatedHours}</p>
                 )}
               </div>
-            ) : (
-              <div />
-            )}
-          </div>
 
-          {/* Form Actions */}
-          <div className="flex justify-end gap-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-10 px-6 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-gray-300 text-sm font-semibold transition-colors duration-200 cursor-pointer focus:outline-none"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="h-10 px-8 bg-[#043314] hover:bg-[#074c1f] border border-white rounded-xl text-white text-sm font-semibold transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
-            >
-              Create
-            </button>
-          </div>
-        </form>
+              {/* Actual Hours Field (only if status is done) */}
+              {status === 'done' ? (
+                <div className="space-y-1.5">
+                  <label className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+                    Actual Hours <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    placeholder="e.g. 8.5"
+                    value={actualHours}
+                    onChange={(e) => {
+                      setActualHours(e.target.value);
+                      if (errors.actualHours) setErrors((prev) => ({ ...prev, actualHours: '' }));
+                    }}
+                    className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:outline-none rounded-xl text-white placeholder-zinc-600 text-sm"
+                  />
+                  {errors.actualHours && (
+                    <p className="text-red-400 text-xs font-medium">{errors.actualHours}</p>
+                  )}
+                </div>
+              ) : (
+                <div />
+              )}
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-1">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-9 px-5 bg-transparent hover:bg-zinc-800/60 border border-zinc-800 hover:border-zinc-700 rounded-xl text-zinc-400 hover:text-white text-sm font-semibold transition-all cursor-pointer focus:outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="h-9 px-6 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold transition-all cursor-pointer shadow-md focus:outline-none border border-transparent"
+              >
+                Create Task
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

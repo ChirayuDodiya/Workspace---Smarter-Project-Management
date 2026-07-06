@@ -1,6 +1,6 @@
 # Postman API Collection Guide
 
-This directory contains the Postman collection and environment files for the Project Manager API. Follow this guide to set up, authenticate, and start testing the endpoints.
+This directory contains the Postman collection and environment files for the **Workspace - Smarter Project Management** API. Follow this guide to set up, authenticate, and start testing the endpoints.
 
 ## Files Included
 
@@ -17,11 +17,11 @@ This directory contains the Postman collection and environment files for the Pro
 3. Select and upload both files:
    * [projectManager.postman_collection.json](./projectManager.postman_collection.json)
    * [projectManager.postman_environment.json](./projectManager.postman_environment.json)
-4. Confirm the import. You will now see a collection named **projectManager** in your Collections tab and an environment named **projectManager** in your Environments tab.
+4. Confirm the import. You will now see a collection named **Workspace** in your Collections tab and an environment named **Workspace** in your Environments tab.
 
 ### 2. Set the Environment & Base URL
 1. In the top-right corner of Postman, click the environment dropdown (which usually defaults to "No Environment").
-2. Select **projectManager** from the list.
+2. Select **Workspace** from the list.
 3. This activates the environment variables, specifically the `{{pm}}` variable which points to:
    `http://localhost:5000/api/v1` (default local server URL).
 4. If your server is running on a different port or host, edit the environment's `pm` variable value accordingly.
@@ -38,7 +38,7 @@ The API uses **cookie-based JWT authentication**. When you log in, the server se
    ```bash
    npm run prisma:seed
    ```
-2. Locate the **auth** folder within the imported `projectManager` collection.
+2. Locate the **auth** folder within the imported `Workspace` collection.
 3. Open the **login** request (`POST {{pm}}/auth/login`).
 4. Under the **Body** tab, you will see a default test user credential:
    ```json

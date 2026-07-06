@@ -152,130 +152,125 @@ export const ProjectMembersModal: React.FC<ProjectMembersModalProps> = ({
   const displayList = debouncedSearchQuery.trim() ? searchResults : members;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-[#1e1e1e] border border-[#333] rounded-3xl w-full max-w-lg p-6 text-white space-y-6 relative shadow-2xl">
-        {/* Title */}
-        <div className="flex items-center justify-between pr-6">
-          <h2 className="text-xl font-bold tracking-wide">Project Members</h2>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-[#181818] border border-zinc-800/80 rounded-2xl w-full max-w-md shadow-2xl text-white overflow-hidden">
+
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80">
+          <h2 className="text-base font-bold tracking-wide">Project Members</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all cursor-pointer focus:outline-none"
+            title="Close"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white cursor-pointer transition-colors p-1"
-          title="Close Modal"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-
-        {/* Warning Error Banner */}
-        {error && (
-          <div className="text-red-400 text-sm font-bold bg-red-950/30 border border-red-500/40 rounded-xl py-2 px-4">
-            {error}
-          </div>
-        )}
-
-        {/* Search Input matching wireframe green theme */}
-        <div className="flex items-center gap-3">
-          <span className="text-[#10b981] font-semibold text-lg">Search:</span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              const val = e.target.value;
-              setSearchQuery(val);
-              if (!val.trim()) {
-                setSearchResults([]);
-              }
-              if (error) setError('');
-            }}
-            placeholder="search members by name or email"
-            className="w-full h-10 px-4 bg-[#121212] border border-[#10b981] focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] rounded-xl text-white placeholder-gray-600 text-sm focus:outline-none transition-all"
-          />
-        </div>
-
-        {/* List of Members */}
-        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-          {displayList.length === 0 && !isLoading ? (
-            <div className="text-center text-gray-500 py-8 text-sm">
-              {debouncedSearchQuery.trim()
-                ? 'No users found matching query'
-                : 'No members currently in project'}
+        {/* Modal Body */}
+        <div className="px-6 py-5 space-y-4">
+          {/* Error Banner */}
+          {error && (
+            <div className="text-red-300 text-sm font-medium bg-red-950/30 border border-red-500/40 rounded-xl py-2 px-4">
+              {error}
             </div>
-          ) : (
-            <>
-              {displayList.map((u) => {
-                const isAlreadyMember = members.some((m) => m.id === u.id);
-                return (
-                  <div
-                    key={u.id}
-                    className="flex items-center justify-between py-2.5 px-4 hover:bg-[#252525] rounded-2xl transition-colors duration-150"
-                  >
-                    <div className="flex flex-col justify-center min-w-0 pr-4">
-                      <span className="text-white font-semibold text-sm truncate">{u.name}</span>
-                      <span className="text-gray-500 text-xs truncate mt-0.5">{u.email}</span>
-                    </div>
-
-                    <div>
-                      {isAlreadyMember ? (
-                        /* Red Minus Icon to Remove */
-                        <button
-                          onClick={() => handleRemoveMember(u.id)}
-                          className="p-1.5 bg-[#4c1c1c] hover:bg-[#682525] border border-red-500/50 rounded-lg text-red-400 cursor-pointer transition-colors"
-                          title="Remove Member"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            strokeWidth="2.5"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
-                          </svg>
-                        </button>
-                      ) : (
-                        /* Green Plus Icon to Add */
-                        <button
-                          onClick={() => handleAddMember(u.id)}
-                          className="p-1.5 bg-[#043314] hover:bg-[#074c1f] border border-[#10b981]/50 rounded-lg text-emerald-400 cursor-pointer transition-colors"
-                          title="Add Member"
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            strokeWidth="2.5"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M12 4.5v15m7.5-7.5h-15"
-                            />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              {isLoading && (
-                <div className="space-y-2 mt-2">
-                  <MemberRowSkeleton />
-                  <MemberRowSkeleton />
-                  <MemberRowSkeleton />
-                </div>
-              )}
-            </>
           )}
+
+          {/* Search Input */}
+          <div className="relative">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSearchQuery(val);
+                if (!val.trim()) {
+                  setSearchResults([]);
+                }
+                if (error) setError('');
+              }}
+              placeholder="Search by name or email to add members…"
+              className="w-full h-10 pl-9 pr-4 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/20 focus:outline-none rounded-xl text-white placeholder-zinc-600 text-sm transition-all"
+            />
+          </div>
+
+          {/* Member List */}
+          <div className="space-y-1 max-h-80 overflow-y-auto pr-0.5">
+            {displayList.length === 0 && !isLoading ? (
+              <div className="text-center text-zinc-600 py-10 text-sm italic">
+                {debouncedSearchQuery.trim()
+                  ? 'No users found matching your search'
+                  : 'No members in this project yet'}
+              </div>
+            ) : (
+              <>
+                {displayList.map((u) => {
+                  const isAlreadyMember = members.some((m) => m.id === u.id);
+                  const initials = u.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join('')
+                    .toUpperCase();
+                  return (
+                    <div
+                      key={u.id}
+                      className="flex items-center justify-between py-2.5 px-3 hover:bg-zinc-800/50 rounded-xl transition-colors duration-150"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Avatar */}
+                        <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-300 shrink-0">
+                          {initials}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-white font-semibold text-sm truncate">{u.name}</span>
+                          <span className="text-zinc-500 text-xs truncate">{u.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 ml-3">
+                        {isAlreadyMember ? (
+                          <button
+                            onClick={() => handleRemoveMember(u.id)}
+                            className="w-8 h-8 flex items-center justify-center bg-red-950/40 hover:bg-red-950/70 border border-red-500/40 rounded-lg text-red-400 hover:text-red-300 cursor-pointer transition-all"
+                            title="Remove Member"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15" />
+                            </svg>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleAddMember(u.id)}
+                            className="w-8 h-8 flex items-center justify-center bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/40 rounded-lg text-emerald-400 hover:text-emerald-300 cursor-pointer transition-all"
+                            title="Add Member"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {isLoading && (
+                  <div className="space-y-2 mt-2">
+                    <MemberRowSkeleton />
+                    <MemberRowSkeleton />
+                    <MemberRowSkeleton />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

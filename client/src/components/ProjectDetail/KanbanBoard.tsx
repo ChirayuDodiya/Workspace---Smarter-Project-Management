@@ -8,9 +8,11 @@ import useTaskTransitions from '../../hooks/useTaskTransitions';
 
 interface KanbanBoardProps {
   slug: string;
+  onAddTask: () => void;
+  onMembers: () => void;
 }
 
-export function KanbanBoard({ slug }: KanbanBoardProps) {
+export function KanbanBoard({ slug, onAddTask, onMembers }: KanbanBoardProps) {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
@@ -66,25 +68,25 @@ export function KanbanBoard({ slug }: KanbanBoardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Search Input Bar */}
-      <div className="flex items-center justify-between">
-        <div className="relative w-full max-w-md">
+      {/* Search Bar + Action Buttons Row */}
+      <div className="flex items-center gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-md">
           <input
             type="text"
             placeholder="Search tasks by title..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full h-11 pl-11 pr-16 bg-[#1a1a1a] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none transition-all duration-300 shadow-md"
+            className="w-full h-10 pl-11 pr-16 bg-[#181818] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/30 rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none transition-all shadow-sm"
           />
-          {/* Search Icon SVG */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+          {/* Search Icon */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600">
             <svg
-              className="w-4.5 h-4.5"
+              className="w-4 h-4"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
@@ -93,7 +95,7 @@ export function KanbanBoard({ slug }: KanbanBoardProps) {
               />
             </svg>
           </div>
-          {/* Clear input button */}
+          {/* Clear button */}
           {searchInput && (
             <button
               type="button"
@@ -104,10 +106,26 @@ export function KanbanBoard({ slug }: KanbanBoardProps) {
             </button>
           )}
         </div>
+
+        {/* Action Buttons */}
+        <button
+          type="button"
+          onClick={onAddTask}
+          className="h-10 px-5 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-md hover:shadow-[0_4px_12px_rgba(4,92,34,0.2)] focus:outline-none border border-transparent shrink-0"
+        >
+          Add Task
+        </button>
+        <button
+          type="button"
+          onClick={onMembers}
+          className="h-10 px-5 bg-[#181818] hover:bg-zinc-800/60 border border-zinc-800 hover:border-zinc-700 rounded-xl text-zinc-300 hover:text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-sm focus:outline-none shrink-0"
+        >
+          Members
+        </button>
       </div>
 
       <DragDropProvider key={refreshKey} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4 border border-white rounded-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border border-zinc-800/60 rounded-2xl">
           {columns.map((col) => (
             <KanbanColumn
               key={col.id}

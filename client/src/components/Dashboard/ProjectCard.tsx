@@ -54,83 +54,92 @@ export function ProjectCard({ project, onDeleteSuccess }: ProjectCardProps) {
     }
   };
 
+  const getStatusColor = (_status: string) => {
+    return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400';
+  };
+
   return (
     <Link
       to={`/projects/${project.slug}`}
-      className="p-6 bg-[#1e1e1e] border border-[#333] hover:border-emerald-500/50 rounded-2xl transition-all duration-200 select-none flex flex-col justify-between min-h-40 h-auto sm:h-40 group cursor-pointer text-left"
+      className="p-5 bg-[#181818] border border-zinc-800/80 hover:border-zinc-700/80 hover:shadow-lg rounded-2xl transition-all duration-200 select-none flex flex-col justify-between min-h-42 group cursor-pointer text-left"
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <div className="flex gap-2">
-            <div className="text-emerald-500 group-hover:text-emerald-400 transition-colors">
-              Name:
-            </div>
-            <div className="text-white">{project.name}</div>
-          </div>
-
-          <div className="flex gap-2">
-            <div className="text-emerald-500 group-hover:text-emerald-400 transition-colors">
-              Slug:
-            </div>
-            <div className="text-white">{project.slug}</div>
-          </div>
+      <div className="flex justify-between items-start gap-4">
+        {/* Project Name and Description */}
+        <div className="min-w-0 grow">
+          <h3 className="text-white text-lg font-bold tracking-tight group-hover:text-emerald-400 transition-colors duration-150 truncate">
+            {project.name}
+          </h3>
+          <p className="text-zinc-500 text-xs mt-1 line-clamp-2 leading-relaxed h-8">
+            {project.description || 'No description provided.'}
+          </p>
         </div>
 
-        <div className="flex gap-2 items-center">
-          <button
-            type="button"
-            onClick={handleDownloadCSV}
-            className="p-1.5 text-xs font-semibold rounded-lg bg-[#052b14] border border-emerald-500/35 hover:bg-[#0b4020] hover:border-emerald-400 text-emerald-400 transition-colors cursor-pointer select-none focus:outline-none flex items-center justify-center"
-            title="Download Tasks CSV"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="p-1.5 text-xs font-semibold rounded-lg bg-[#3a1515] border border-red-500/35 hover:bg-[#541e1e] hover:border-red-400 text-red-400 transition-colors cursor-pointer select-none focus:outline-none flex items-center justify-center"
-            title="Delete Project"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-          </button>
+        {/* Action Controls & Status */}
+        <div className="flex flex-col items-end gap-2 shrink-0">
           <span
-            className={`px-3 py-1 text-md font-semibold rounded-full capitalize bg-[#2d2d2d] text-zinc-300 border border-zinc-700/60`}
+            className={`px-2 py-0.5 text-[10px] font-bold rounded-full border uppercase tracking-wider select-none ${getStatusColor(
+              project.status
+            )}`}
           >
-            {project.status}
+            {project.status.replace('_', ' ')}
           </span>
+          <div className="flex gap-1.5 items-center">
+            <button
+              type="button"
+              onClick={handleDownloadCSV}
+              className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-850 hover:border-emerald-500/30 text-zinc-500 hover:text-emerald-400 transition-colors cursor-pointer select-none focus:outline-none flex items-center justify-center"
+              title="Download Tasks CSV"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-850 hover:border-red-500/30 text-zinc-500 hover:text-red-400 transition-colors cursor-pointer select-none focus:outline-none flex items-center justify-center"
+              title="Delete Project"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Progress Section */}
       <div className="mt-4">
-        <div className="flex justify-between items-center text-emerald-500 text-md font-semibold mb-1.5">
-          <span>Progress Bar:</span>
-          <span className="text-white">{progressPercent}%</span>
+        <div className="flex justify-between items-center text-xs font-semibold text-zinc-400 mb-1.5">
+          <div className="flex items-center gap-1">
+            <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2" />
+            </svg>
+            <span>{completedTasks}/{totalTasks} Tasks</span>
+          </div>
+          <span className="text-zinc-200">{progressPercent}%</span>
         </div>
-        <div className="w-full bg-[#2d2d2d] h-2.5 rounded-full overflow-hidden border border-zinc-800">
+        <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden border border-zinc-950">
           <div
             className="bg-emerald-500 h-full rounded-full transition-all duration-500 ease-out"
             style={{ width: `${progressPercent}%` }}

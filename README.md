@@ -1,4 +1,4 @@
-# Project Manager Application
+# Workspace - Smarter Project Management
 
 ## Required Environment Variables
 

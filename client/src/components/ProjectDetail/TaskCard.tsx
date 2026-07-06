@@ -57,32 +57,30 @@ export const TaskCard = memo(function TaskCard({ task, index }: TaskCardProps) {
       ref={ref}
       id={`task-card-${task.id}`}
       onClick={handleCardClick}
-      className={`relative p-4 bg-[#1a1a1a] rounded-2xl border transition-all duration-200 select-none text-left cursor-pointer hover:border-emerald-500/40 active:cursor-grabbing ${
+      className={`relative p-4 bg-[#181818] rounded-2xl border transition-all duration-200 select-none text-left cursor-pointer ${
         isDragging ? 'opacity-30' : ''
-      } ${overdue ? 'border-red-500/80 shadow-md shadow-red-500/5' : 'border-[#333]'}`}
+      } ${overdue ? 'border-red-500/70 shadow-md shadow-red-500/5' : 'border-zinc-800/80 hover:border-zinc-700/80 hover:shadow-md'}`}
     >
       {/* Priority Badge in Top Right */}
       <span
-        className={`absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${priorityClass}`}
+        className={`absolute top-3.5 right-3.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${priorityClass}`}
       >
         {task.priority}
       </span>
 
-      {/* Task Details */}
-      <div className="space-y-2 mt-2 pr-20">
-        <div className="flex gap-2">
-          <span className="text-gray-400 font-bold text-sm tracking-wider">Title</span>
-          <span className="text-white font-semibold text-sm line-clamp-2">{task.title}</span>
+      {/* Task Title */}
+      <p className="text-sm font-bold text-white line-clamp-2 pr-20 mb-3 leading-snug">{task.title}</p>
+
+      {/* Task Meta */}
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Assignee</span>
+          <span className="text-zinc-300 text-xs font-semibold capitalize truncate">{assigneeName}</span>
         </div>
 
-        <div className="flex gap-2">
-          <span className="text-gray-400 font-bold text-sm tracking-wider">Assign to</span>
-          <span className="text-white font-semibold text-sm capitalize">{assigneeName}</span>
-        </div>
-
-        <div className="flex gap-2">
-          <span className="text-gray-400 font-bold text-sm tracking-wider">Due date</span>
-          <span className={`text-sm font-semibold ${overdue ? 'text-red-400' : 'text-white'}`}>
+        <div className="flex items-center gap-2">
+          <span className="text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Due</span>
+          <span className={`text-xs font-semibold ${overdue ? 'text-red-400' : 'text-zinc-300'}`}>
             {formattedDueDate}
           </span>
         </div>

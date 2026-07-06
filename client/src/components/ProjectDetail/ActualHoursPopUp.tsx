@@ -31,18 +31,33 @@ export const ActualHoursPopUp = memo(function ActualHoursPopUp({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-opacity duration-300">
-      <div className="w-full max-w-md bg-[#1e1e1e]/95 border border-white/10 rounded-3xl p-8 shadow-2xl text-left select-none">
-        <h3 className="text-xl font-bold text-white mb-2">Complete Task</h3>
-        <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-          Please enter the actual hours spent on{' '}
-          <span className="text-emerald-400 font-semibold">"{taskTitle}"</span> to mark it as done.
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-[#181818] border border-zinc-800/80 rounded-2xl p-6 shadow-2xl text-left select-none">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-sm font-bold text-white uppercase tracking-wider">Complete Task</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-all cursor-pointer focus:outline-none"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Description */}
+        <p className="text-zinc-400 text-xs leading-relaxed mb-5">
+          Enter the actual hours spent on{' '}
+          <span className="text-white font-semibold">"{taskTitle}"</span>{' '}
+          to mark it as done.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="actual-hours" className="block text-gray-300 text-sm font-semibold">
-              Actual Hours:
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label htmlFor="actual-hours" className="block text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+              Actual Hours
             </label>
             <input
               id="actual-hours"
@@ -53,22 +68,22 @@ export const ActualHoursPopUp = memo(function ActualHoursPopUp({
               placeholder="e.g. 4.5"
               value={hours}
               onChange={(e) => setHours(e.target.value)}
-              className="w-full h-11 px-4 bg-[#121212] border border-[#333] hover:border-zinc-700 focus:border-emerald-500/50 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none transition-colors"
+              className="w-full h-10 px-3 bg-[#121212] border border-zinc-800 hover:border-zinc-700 focus:border-[#098032] focus:ring-1 focus:ring-[#098032]/30 rounded-xl text-white placeholder-zinc-600 text-sm focus:outline-none transition-all"
               autoFocus
             />
           </div>
 
-          <div className="flex justify-end gap-4 pt-2">
+          <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="h-10 px-5 bg-transparent hover:bg-white/5 border border-white/20 rounded-xl text-gray-300 text-sm font-semibold transition-colors duration-200 cursor-pointer focus:outline-none"
+              className="h-9 px-5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 rounded-xl text-zinc-300 hover:text-white text-sm font-semibold transition-all cursor-pointer focus:outline-none"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="h-10 px-6 bg-[#043314] hover:bg-[#074c1f] border border-white rounded-xl text-white text-sm font-semibold transition-colors duration-200 cursor-pointer shadow-md focus:outline-none focus:ring-2 focus:ring-[#098032]"
+              className="h-9 px-5 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold transition-all cursor-pointer shadow-sm focus:outline-none border border-transparent"
             >
               Submit
             </button>

@@ -122,7 +122,7 @@ docker compose up --build -d
 ### Step 2: Seed the Production Database (Optional)
 To populate the production database with mock seed data, execute the seeder inside the running server container:
 ```bash
-docker exec pm-server-prod node prisma/seed.js
+docker exec pm-server-prod npm run prisma:seed
 ```
 
 ### Step 3: Access the App

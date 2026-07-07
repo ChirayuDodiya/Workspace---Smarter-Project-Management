@@ -1,4 +1,4 @@
-# Project Manager
+# Workspace - Smarter Project Management
 
 A full-stack web application for tracking projects, tasks, and team collaboration in real time.
 
@@ -120,13 +120,19 @@ Open [http://localhost](http://localhost).
 
 ## Default Seed Accounts
 
-After running `npm run prisma:seed`, you can log in with:
+After running `npm run prisma:seed`, you can log in with any of the following accounts:
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | admin1@gmail.com | `AdminPass@1` |
+| Admin | admin2@gmail.com | `AdminPass@2` |
+| Admin | admin3@gmail.com | `AdminPass@3` |
 | Manager | manager1@gmail.com | `ManagerPass@1` |
+| Manager | manager2@gmail.com | `ManagerPass@2` |
+| Manager | manager3@gmail.com | `ManagerPass@3` |
 | Developer | developer1@gmail.com | `DeveloperPass@1` |
+| Developer | developer2@gmail.com | `DeveloperPass@2` |
+| Developer | developer3@gmail.com | `DeveloperPass@3` |
 
 ---
 

@@ -104,6 +104,17 @@ CREATE INDEX idx_comments_task_deleted ON comments(task_id, deleted_at);
 CREATE INDEX idx_team_members_project ON team_members(project_id);
 CREATE INDEX idx_team_members_user ON team_members(user_id);
 
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    refresh_token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_refresh_token_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX fk_refresh_token_user ON refresh_tokens(user_id);
+
 
 -- seeder generator
 INSERT INTO users (name, email, password, role) VALUES

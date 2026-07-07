@@ -1,166 +1,160 @@
-# Workspace - Smarter Project Management
+# Project Manager
 
-## Required Environment Variables
+A full-stack web application for tracking projects, tasks, and team collaboration in real time.
 
-To get started, make sure the `.env` files are configured as follows:
-
-### 1. Root Workspace Environment Variables root .env (for deployment)
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=production #test
-JWT_ACCESS_SECRET=your-access-token-secret
-JWT_REFRESH_SECRET=your-refresh-token-secret
-CLIENT_URL=http://localhost:5173
-
-# Database Configuration
-DATABASE_HOST=mysql
-DATABASE_USER=your-username
-DATABASE_PASSWORD=your-password
-DATABASE_NAME=projectmanager
-DATABASE_PORT=3306
-
-# Redis Configuration
-REDIS_URL=redis://redis:6379
-
-# Client/Frontend Configuration
-VITE_API_URL=http://localhost:5000/api/v1
-```
-
-### 2. Backend Environment Variables server/.env (for development)
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-JWT_ACCESS_SECRET=your-access-token-secret
-JWT_REFRESH_SECRET=your-refresh-token-secret
-CLIENT_URL=http://localhost:5173
-
-# Database Configuration
-DATABASE_HOST=localhost
-DATABASE_USER=your-username
-DATABASE_PASSWORD=your-password
-DATABASE_NAME=projectmanager
-DATABASE_PORT=3307
-
-# Redis Configuration
-REDIS_URL=redis://redis:6379
-```
-
-### 3. Frontend Environment Variables client/.env (for development)
-```env
-VITE_API_URL=http://localhost:5000/api/v1
-```
+Built with **React 19 + TypeScript** on the frontend and **Node.js + Express + Prisma** on the backend, backed by **MariaDB** and **Redis**, with live updates powered by **Socket.io**.
 
 ---
 
-## Running in Development Mode
+## Screenshots
 
-In development mode, run the **database and redis inside Docker** and the **application source code locally** via `npm run dev` for instant hot-reloading.
+### Login
+![Login](docs/screenshots/login.png)
 
-### Step 1: Start Database and Cache Containers
-Launch MySQL on host port `3307` and Redis on `6379`:
+### Register
+![Register](docs/screenshots/register.png)
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Admin — User Management
+![Change Role](docs/screenshots/change-role.png)
+
+### Add Project
+![Add Project Modal](docs/screenshots/add-project-modal.png)
+
+### Project Detail — Kanban Board
+![Project Detail](docs/screenshots/project-detail.png)
+
+### Add Task
+![Add Task Modal](docs/screenshots/add-task-modal.png)
+
+### Task Detail
+![Task Detail](docs/screenshots/task-detail.png)
+
+---
+
+## Features
+
+- 📋 **Project Management** — Create, update, and archive projects with status tracking
+- ✅ **Kanban Task Board** — Drag-and-drop task reordering across status columns
+- 👥 **Team Collaboration** — Assign tasks to team members and manage project rosters
+- 💬 **Threaded Comments** — Comment and reply directly on tasks
+- 🔔 **Real-Time Notifications** — Live updates via Socket.io when tasks are created, updated, or assigned
+- 👁️ **Live Presence** — See who else is viewing the same project board right now
+- 📊 **Dashboard Statistics** — Track active, overdue, and completed tasks at a glance
+- 📤 **CSV Export** — Download all tasks in a project as a CSV file
+- 🔒 **Role-Based Access Control** — Admin, Manager, and Developer roles with granular permissions
+- ♻️ **Token Refresh** — Silent JWT refresh via HTTPOnly cookies; no manual re-login needed
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite 8, TailwindCSS v4 |
+| Backend | Node.js (ESM), Express 5 |
+| Database | MariaDB 10.11, Prisma ORM 7 |
+| Cache / Rate Limiting | Redis 7 (ioredis) |
+| Real-Time | Socket.io 4 |
+| Auth | JWT (HTTPOnly cookies) |
+| Containerisation | Docker, Docker Compose |
+| Testing | Jest + Supertest (server), Vitest + Testing Library (client) |
+
+---
+
+## Quick Start
+
+### Development
+
+> Requires: Docker, Node.js 20+
+
 ```bash
+# 1. Start database and Redis
 docker compose -f docker-compose.dev.yml up -d
+
+# 2. Configure environment
+cp .env.example .env
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+
+# 3. Start backend
+cd server && npm install && npm run prisma:migrate && npm run prisma:seed && npm run dev
+
+# 4. Start frontend (new terminal)
+cd client && npm install && npm run dev
 ```
 
-### Step 2: Set Up & Run Backend
-1. Navigate to the server folder:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run database migrations:
-   ```bash
-   npm run prisma:migrate
-   ```
-4. Seed the database with mock developers, projects, and tasks:
-   ```bash
-   npm run prisma:seed
-   ```
-5. Start backend hot-reloading server:
-   ```bash
-   npm run dev
-   ```
+Open [http://localhost:5173](http://localhost:5173).
 
-### Step 3: Set Up & Run Frontend
-1. Open a new terminal and navigate to the client folder:
-   ```bash
-   cd client
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite React development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+### Production
 
-To stop/pause the development database and cache containers (without removing them):
+> Requires: Docker only
+
 ```bash
-docker compose -f docker-compose.dev.yml stop
-```
+cp .env.example .env   # Fill in secrets and passwords
 
----
-
-## Running in Production Mode (All-in-One Docker)
-
-In production mode, the entire application stack—MySQL, Redis, the Node/Express server, and Nginx serving compiled Vite assets—runs inside Docker containers.
-
-### Step 1: Start the Docker Compose Stack
-Boot the production multi-container environment in detached mode:
-```bash
 docker compose up --build -d
-```
-*Wait for containers to initialize. The Express server container will automatically run the Prisma migration deployment before starting.*
 
-### Step 2: Seed the Production Database (Optional)
-To populate the production database with mock seed data, execute the seeder inside the running server container:
-```bash
+# Optional: seed demo data
 docker exec pm-server-prod npm run prisma:seed
 ```
 
-### Step 3: Access the App
-Open your browser and navigate to:
-- **Application Front-End**: [http://localhost](http://localhost) (Served by Nginx on Port 80, reverse-proxying API requests transparently).
-- **Backend API Server**: [http://localhost/api/v1](http://localhost/api/v1).
+Open [http://localhost](http://localhost).
 
-To stop/pause the production containers (without removing them):
-```bash
-docker compose stop
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [docs/deployment.md](docs/deployment.md) | Full setup guide — environment variables, dev mode, production mode, Docker reference |
+| [docs/architecture.md](docs/architecture.md) | System design — backend layers, frontend structure, real-time events, caching |
+| [docs/database.md](docs/database.md) | Database schema — all tables, columns, indexes, FK rules, seed data |
+| [docs/api.md](docs/api.md) | API reference — all endpoints with request/response examples |
+| [docs/features.md](docs/features.md) | Detailed feature breakdown — what each feature does and how it works |
+| [Postman/README.md](Postman/README.md) | Postman collection setup guide |
+
+---
+
+## Default Seed Accounts
+
+After running `npm run prisma:seed`, you can log in with:
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin1@gmail.com | `AdminPass@1` |
+| Manager | manager1@gmail.com | `ManagerPass@1` |
+| Developer | developer1@gmail.com | `DeveloperPass@1` |
+
+---
+
+## Project Structure
+
+```
+/
+├── client/          # React + TypeScript frontend (Vite)
+├── server/          # Node.js + Express backend
+│   └── prisma/      # Schema, migrations, seed data
+├── docs/            # Project documentation
+│   └── screenshots/ # App screenshots
+├── Postman/         # API collection + environment files
+├── UI/              # Excalidraw wireframes (design reference)
+├── docker-compose.yml       # Production stack
+├── docker-compose.dev.yml   # Development infrastructure only
+└── script.sql               # Raw DDL reference
 ```
 
 ---
 
-## How to Run Tests
+## Running Tests
 
-### 1. Running Backend Tests
-The backend uses **Jest** and **Supertest** to verify authorization, transitions, and models. Tests run in-band sequentially on your development database.
-1. Navigate to backend server directory:
-   ```bash
-   cd server
-   ```
-2. Execute the test suite:
-   ```bash
-   npm run test
-   ```
+```bash
+# Backend (Jest + Supertest)
+cd server && npm run test
 
-### 2. Running Frontend Tests
-The frontend uses **Vitest** and **React Testing Library** for component and integration tests.
-1. Navigate to frontend client directory:
-   ```bash
-   cd client
-   ```
-2. Run tests in watch mode:
-   ```bash
-   npm run test
-   ```
-3. Or run tests once:
-   ```bash
-   npm run test:run
-   ```
+# Frontend (Vitest + Testing Library)
+cd client && npm run test        # watch mode
+cd client && npm run test:run    # single run
+```

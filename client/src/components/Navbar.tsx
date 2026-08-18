@@ -54,6 +54,16 @@ export function Navbar() {
           >
             Change Role
           </NavLink>
+          <NavLink
+            to="/change-password"
+            className={({ isActive }) =>
+              `text-xs sm:text-sm font-semibold transition-colors duration-150 ${
+                isActive ? 'text-[#10b981] font-bold' : 'text-zinc-400 hover:text-white'
+              }`
+            }
+          >
+            Change Password
+          </NavLink>
         </nav>
       </div>
 

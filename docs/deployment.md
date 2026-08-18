@@ -62,6 +62,10 @@ DATABASE_PORT=3306
 # Redis Configuration
 REDIS_URL=redis://redis:6379 # Service name inside Docker network
 
+# Email Service Configuration (Brevo)
+BREVO_API_KEY=your-brevo-api-key
+EMAIL_FROM=your-email-id
+
 # Client/Frontend Configuration
 VITE_API_URL=http://localhost:5000/api/v1
 ```
@@ -93,6 +97,10 @@ DATABASE_PORT=3307            # Mapped to host port 3307
 
 # Redis Configuration
 REDIS_URL=redis://127.0.0.1:6379
+
+# Email Service Configuration (Brevo)
+BREVO_API_KEY=your-brevo-api-key
+EMAIL_FROM=your-email-id
 ```
 
 ---
@@ -224,7 +232,7 @@ docker compose up --build -d
 
 > **What happens automatically:**
 > 1. MariaDB and Redis start and pass health checks.
-> 2. The server container starts, runs `prisma migrate deploy` to apply all pending migrations, then launches `node index.js`.
+> 2. The server container starts, runs `prisma migrate deploy` to apply all pending migrations, then launches the compiled typescript code (e.g., `node dist/index.js` or `tsx src/index.ts`).
 > 3. The client container builds the Vite production bundle and serves it via Nginx on port 80.
 
 Wait ~30 seconds for all services to initialize fully.
@@ -313,9 +321,9 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 **`server/Dockerfile`** — Node 20 Alpine:
 1. Installs system dependency `openssl` (required by Prisma).
 2. Copies `package*.json` and `prisma/` schema.
-3. Runs `npm ci --omit=dev` (production deps only).
-4. Copies source, exposes port 5000.
-5. `CMD ["node", "index.js"]`
+3. Runs `npm ci --omit=dev` (production deps only) or `npm install` to compile TypeScript.
+4. Copies source, compiles TypeScript, exposes port 5000.
+5. `CMD ["npm", "run", "start"]` (or equivalent start command for TS output)
 
 **`client/Dockerfile`** — Multi-stage build:
 1. **Stage 1 (builder):** Node 20 Alpine — installs deps, runs `npm run build`, produces `dist/`.

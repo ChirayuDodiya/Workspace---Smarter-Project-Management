@@ -37,11 +37,15 @@ All users (unauthenticated access required for register and login).
 
 | Action | Endpoint | Notes |
 |---|---|---|
-| Register | `POST /auth/register` | Validates name, email format, and password strength via Zod |
+| Register | `POST /auth/register` | Initiates signup, validates via Zod, and sends a 6-digit OTP to the user's email via Brevo |
+| Verify OTP | `POST /auth/verify-otp` | Validates the OTP from Redis and finalizes the user account creation |
 | Login | `POST /auth/login` | Returns two HTTPOnly cookies: `accessToken` (short-lived) and `refreshToken` (long-lived) |
-| Logout | `POST /auth/logout` | Clears both cookies server-side |
+| Logout | `POST /auth/logout` | Clears both cookies server-side and deletes refresh tokens |
 | Get Profile | `GET /auth/me` | Returns the current user's data from the JWT + DB lookup |
 | Refresh | `POST /auth/refresh` | Issues a new `accessToken` using the `refreshToken` cookie silently |
+| Forgot Password | `POST /auth/forgot-password` | Generates a reset link and sends it via email |
+| Reset Password | `POST /auth/reset-password` | Validates the reset token and securely updates the user's password |
+| Change Password | `POST /auth/change-password` | Authenticated users can update their password, automatically revoking all refresh tokens |
 
 **Token Refresh Flow (Client):**
 The Axios interceptor in [`client/src/services/api.ts`](../client/src/services/api.ts) catches any `401 Unauthorized` response, automatically calls `POST /auth/refresh`, and retries the original failed request — the user never sees a login page mid-session. If the refresh also fails, the user is redirected to `/login`.
@@ -233,7 +237,7 @@ All authenticated users who can view the task.
 - Fetched via `GET /tasks/:id/activities`.
 - Each entry includes the acting user, the action performed, and a timestamp.
 - The timeline covers both `task`-type logs and `comment`-type logs (threaded together in chronological order).
-- Entries are created server-side by `createActivityLog()` in [`activity.service.js`](../server/src/services/activity.service.js) whenever a mutation occurs.
+- Entries are created server-side by `createActivityLog()` in [`activity.service.ts`](../server/src/services/activity.service.ts) whenever a mutation occurs.
 - Displayed in descending chronological order (newest first).
 
 ---
@@ -291,7 +295,7 @@ Keeps all users viewing the same project board in sync automatically — no page
 
 ### How it works
 
-When a user opens a project, the client joins the Socket.io room `project:<slug>`. Any mutation in a controller calls a broadcast helper from [`socket.service.js`](../server/src/services/socket.service.js), which emits the event to everyone in that room.
+When a user opens a project, the client joins the Socket.io room `project:<slug>`. Any mutation in a controller calls a broadcast helper from [`socket.service.ts`](../server/src/services/socket.service.ts), which emits the event to everyone in that room.
 
 **Broadcast Events:**
 
@@ -318,7 +322,7 @@ Shows a live list of which team members are currently viewing the same project b
 
 ### How it works
 
-Tracked server-side in an in-memory `Map<projectSlug, Map<userId, { user, socketIds: Set }>>` in [`index.js`](../server/index.js).
+Tracked server-side in an in-memory `Map<projectSlug, Map<userId, { user, socketIds: Set }>>` in [`index.ts`](../server/index.ts).
 
 - When a user opens a project, the client emits `join:project` with the user's profile.
 - The server adds them to the project's presence map and broadcasts `project:presence` (the current member list) to the whole room.
@@ -398,7 +402,7 @@ Protects the API from abuse by limiting how many requests can be made within a 6
 
 ### How it works
 
-Implemented in [`rateLimiter.middleware.js`](../server/src/middlewares/rateLimiter.middleware.js) using Redis counters:
+Implemented in [`rateLimiter.middleware.ts`](../server/src/middlewares/rateLimiter.middleware.ts) using Redis counters:
 
 | User Type | Identifier | Limit | Window |
 |---|---|---|---|

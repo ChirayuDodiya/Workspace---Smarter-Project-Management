@@ -36,7 +36,8 @@ api.interceptors.response.use(
         originalRequest.url?.includes('/auth/refresh') ||
         originalRequest.url?.includes('/auth/login')
       ) {
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        const path = window.location.pathname;
+        if (path !== '/login' && path !== '/register' && path !== '/forgot-password' && path !== '/reset-password') {
           window.location.href = '/login';
         }
         return Promise.reject(error);
@@ -65,7 +66,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         isRefreshing = false;
         processQueue(refreshError);
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+        const path = window.location.pathname;
+        if (path !== '/login' && path !== '/register' && path !== '/forgot-password' && path !== '/reset-password') {
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);

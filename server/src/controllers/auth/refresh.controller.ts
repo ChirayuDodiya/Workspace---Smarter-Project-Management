@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { successResponse, errorResponse } from '../../utils/response.js';
 import prisma from '../../prisma/client.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { generateAccessToken } from '../../utils/token.js';
+import { generateAccessToken, generateRefreshToken } from '../../utils/token.js';
 
 const refresh = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies?.refreshToken;
@@ -42,12 +42,31 @@ const refresh = asyncHandler(async (req, res) => {
     }
 
     const newAccessToken = generateAccessToken(user);
+    const newRefreshToken = generateRefreshToken(user);
+
+    const newHashedRefresh = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    await prisma.refresh_tokens.update({
+      where: { id: record.id },
+      data: {
+        refresh_token: newHashedRefresh,
+        expires_at: expiresAt,
+      },
+    });
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000, // 15 mins
+    });
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     return successResponse(res, null, 'Access token refreshed successfully', 200);

@@ -25,6 +25,12 @@ export function Register() {
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [serverError, setServerError] = useState('');
+  
+  // OTP flow states
+  const [step, setStep] = useState<1 | 2>(1);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Validation functions
   const validateNameField = (value: string) => {
@@ -83,10 +89,18 @@ export function Register() {
     validateConfirmPasswordField(val);
   };
 
-  // Submit Handler
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOtp(e.target.value);
+    if (e.target.value.length === 6) {
+      setOtpError('');
+    }
+  };
+
+  // Submit Handler for Step 1
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError('');
+    setSuccessMessage('');
 
     const isNameValid = validateNameField(name);
     const isEmailValid = validateEmailField(email);
@@ -106,13 +120,45 @@ export function Register() {
       });
 
       if (response.data && response.data.success) {
-        // Redirect to Login page on success
-        navigate('/login', { state: { successMessage: 'Registration successful! Please login.' } });
+        setSuccessMessage('OTP sent successfully. Please check your email.');
+        setStep(2);
       }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string } } };
       const msg = axiosError.response?.data?.message || 'Registration failed. Please try again.';
       setServerError(msg);
+    }
+  };
+
+  // Submit Handler for Step 2 (OTP)
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError('');
+    setSuccessMessage('');
+
+    if (otp.length !== 6) {
+      setOtpError('OTP must be 6 characters');
+      return;
+    }
+
+    try {
+      const response = await api.post('/auth/verify-otp', {
+        email,
+        otp,
+      });
+
+      if (response.data && response.data.success) {
+        navigate('/login', { state: { successMessage: 'Registration successful! Please login.' } });
+      }
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const msg = axiosError.response?.data?.message || 'Verification failed. Please try again.';
+      setServerError(msg);
+      
+      if (msg.includes('Maximum OTP attempts reached')) {
+        setStep(1);
+        setOtp('');
+      }
     }
   };
 
@@ -191,7 +237,7 @@ export function Register() {
       {/* Right side column: Register form area */}
       <div className="w-full md:w-[58%] flex flex-col justify-center items-center min-h-screen md:h-full px-6 sm:px-16 py-10 text-white overflow-y-auto">
         <div className="w-full max-w-105 bg-[#181818] border border-zinc-800/80 rounded-2xl shadow-xl p-8 sm:p-10 flex flex-col">
-          <form onSubmit={handleSubmit} className="w-full flex flex-col">
+          <form className="w-full flex flex-col" onSubmit={(e) => e.preventDefault()}>
             {/* Header info */}
             <div className="text-left w-full mb-6">
               <h1 className="text-white text-3xl font-bold tracking-tight mb-1.5">
@@ -201,6 +247,16 @@ export function Register() {
                 Get started today and streamline your workflows.
               </p>
             </div>
+
+            {/* Success Banner */}
+            {successMessage && !serverError && (
+              <div className="w-full flex items-center gap-2.5 bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 px-3.5 py-2.5 rounded-xl mb-5 text-sm font-medium">
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{successMessage}</span>
+              </div>
+            )}
 
             {/* General Server Error Banner */}
             {serverError && (
@@ -212,8 +268,10 @@ export function Register() {
               </div>
             )}
 
-            <InputField
-              label="Name"
+            {step === 1 ? (
+              <>
+                <InputField
+                  label="Name"
               type="text"
               name="name"
               value={name}
@@ -266,11 +324,44 @@ export function Register() {
 
             {/* Form Action Button */}
             <button
-              type="submit"
+              type="button"
+              onClick={handleRegisterSubmit}
               className="mt-6 w-full py-2.5 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-md hover:shadow-[0_4px_12px_rgba(4,92,34,0.25)] focus:outline-none focus:ring-2 focus:ring-[#098032] focus:ring-offset-2 focus:ring-offset-[#181818]"
             >
-              Sign up
+              Send OTP
             </button>
+            </>
+            ) : (
+              <>
+                <InputField
+                  label="Verification Code (OTP)"
+                  type="text"
+                  name="otp"
+                  value={otp}
+                  placeholder="Enter 6-digit code"
+                  error={otpError}
+                  required
+                  onChange={handleOtpChange}
+                  autoComplete="one-time-code"
+                />
+                
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  className="mt-6 w-full py-2.5 bg-[#045c22] hover:bg-[#074c1f] rounded-xl text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer shadow-md hover:shadow-[0_4px_12px_rgba(4,92,34,0.25)] focus:outline-none focus:ring-2 focus:ring-[#098032] focus:ring-offset-2 focus:ring-offset-[#181818]"
+                >
+                  Verify & Sign Up
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="mt-3 w-full py-2.5 bg-transparent border border-zinc-700 hover:bg-zinc-800 rounded-xl text-zinc-300 hover:text-white text-sm font-semibold tracking-wide transition-all duration-200 cursor-pointer focus:outline-none"
+                >
+                  Back
+                </button>
+              </>
+            )}
 
             {/* Redirection Link */}
             <p className="mt-6 text-zinc-400 text-sm text-center">

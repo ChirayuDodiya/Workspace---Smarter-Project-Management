@@ -23,10 +23,11 @@ This document describes the technical architecture of the **Workspace - Smarter 
 | Concern | Technology |
 |---|---|
 | Frontend | React 19, TypeScript, Vite 8, TailwindCSS v4 |
-| Backend | Node.js (ESM), Express 5 |
+| Backend | Node.js, Express 5, TypeScript |
 | Reverse Proxy | Nginx 1.25 (production) |
 | Database | MariaDB 10.11 via Prisma ORM |
 | Cache | Redis 7 (ioredis) |
+| Email Service | Brevo REST API |
 | Real-time | Socket.io 4 |
 | Containerisation | Docker + Docker Compose |
 | Testing (server) | Jest + Supertest |
@@ -44,13 +45,13 @@ This document describes the technical architecture of the **Workspace - Smarter 
 
 ### Entry Point
 
-**[`server/index.js`](../server/index.js)** is the root entry point. It:
+**[`server/index.ts`](../server/index.ts)** is the root entry point. It:
 - Creates the Node.js HTTP server wrapping the Express `app`.
 - Attaches the Socket.io server to the same HTTP server.
 - Manages real-time project presence state via an in-memory `Map`.
 - Connects to the database on startup.
 
-**[`server/src/app.js`](../server/src/app.js)** configures the Express application:
+**[`server/src/app.ts`](../server/src/app.ts)** configures the Express application:
 - Registers global middleware (CORS, JSON parser, cookie parser, rate limiter).
 - Mounts all versioned API route modules under `/api/v1/`.
 - Attaches the global error handler as the final middleware.
@@ -86,51 +87,53 @@ Request
 
 ```
 src/
-├── app.js                  # Express app factory
+├── app.ts                  # Express app factory
 ├── controllers/            # Grouped by resource domain
-│   ├── auth/               # register, login, logout, me, refresh
+│   ├── auth/               # register, verifyOTP, login, logout, me, refresh, forgot/reset/change-password
 │   ├── project/
 │   ├── task/
 │   ├── comment/
 │   ├── dashboard/
 │   └── user/
 ├── routes/                 # Route definitions — connect URL → middleware chain → controller
-│   ├── auth.routes.js
-│   ├── project.routes.js
-│   ├── task.routes.js
-│   ├── comment.routes.js
-│   ├── dashboard.routes.js
-│   └── user.routes.js
+│   ├── auth.routes.ts
+│   ├── project.routes.ts
+│   ├── task.routes.ts
+│   ├── comment.routes.ts
+│   ├── dashboard.routes.ts
+│   └── user.routes.ts
 ├── middlewares/            # Cross-cutting concerns
-│   ├── auth.middleware.js          # JWT cookie verification
-│   ├── etag.middleware.js          # HTTP ETag / 304 caching
-│   ├── rateLimiter.middleware.js   # Redis-backed rate limiting
-│   └── error.middleware.js         # Global error handler
+│   ├── auth.middleware.ts          # JWT cookie verification
+│   ├── etag.middleware.ts          # HTTP ETag / 304 caching
+│   ├── rateLimiter.middleware.ts   # Redis-backed rate limiting
+│   └── error.middleware.ts         # Global error handler
 ├── loaders/                # Param pre-fetchers (attach entity to req)
-│   ├── project.loader.js
-│   └── task.loader.js
+│   ├── project.loader.ts
+│   └── task.loader.ts
 ├── policies/               # Authorisation guards (role + ownership checks)
-│   ├── project.policy.js
-│   └── task.policy.js
+│   ├── project.policy.ts
+│   └── task.policy.ts
 ├── validators/             # Zod request body schemas
-│   ├── project.validator.js
-│   ├── task.validator.js
+│   ├── project.validator.ts
+│   ├── task.validator.ts
 │   └── ...
 ├── serializers/            # Shape raw DB models into API response objects
-│   ├── project.serializer.js
-│   ├── task.serializer.js
-│   └── user.serializer.js
+│   ├── project.serializer.ts
+│   ├── task.serializer.ts
+│   └── user.serializer.ts
 ├── services/               # Infrastructure utilities
-│   ├── redis.service.js    # Cache get/set/invalidate helpers
-│   ├── socket.service.js   # Broadcast helpers per event type
-│   ├── cron.service.js     # Scheduled background jobs
-│   ├── activity.service.js # Activity log creation helper
-│   └── slug.service.js     # Unique slug generation
+│   ├── redis.service.ts    # Cache get/set/invalidate helpers
+│   ├── socket.service.ts   # Broadcast helpers per event type
+│   ├── cron.service.ts     # Scheduled background jobs
+│   ├── activity.service.ts # Activity log creation helper
+│   ├── slug.service.ts     # Unique slug generation
+│   └── mail.service.ts     # Email delivery via Brevo API
 ├── prisma/
-│   └── client.js           # Extended Prisma client with custom query methods
+│   └── client.ts           # Extended Prisma client with custom query methods
 └── utils/
-    ├── response.js         # successResponse / errorResponse / paginatedResponse helpers
-    └── asyncHandler.js     # Wraps async controllers to forward errors to the error middleware
+    ├── response.ts         # successResponse / errorResponse / paginatedResponse helpers
+    ├── asyncHandler.ts     # Wraps async controllers to forward errors to the error middleware
+    └── emailTemplates.ts   # Premium dark-themed HTML email templates
 ```
 
 ---
@@ -139,10 +142,10 @@ src/
 
 | Middleware | Purpose |
 |---|---|
-| `auth.middleware.js` | Reads `accessToken` from HTTPOnly cookie, verifies JWT, confirms user is active in DB |
-| `rateLimiter.middleware.js` | Redis-backed sliding window — 100 req/min for authenticated users, 20 req/min for guests (by IP) |
-| `etag.middleware.js` | Intercepts `res.send()` on GET requests, computes an ETag hash, returns `304 Not Modified` when client ETag matches |
-| `error.middleware.js` | Centralised error handler — catches errors thrown anywhere in the stack |
+| `auth.middleware.ts` | Reads `accessToken` from HTTPOnly cookie, verifies JWT, confirms user is active in DB |
+| `rateLimiter.middleware.ts` | Redis-backed sliding window — 100 req/min for authenticated users, 20 req/min for guests (by IP) |
+| `etag.middleware.ts` | Intercepts `res.send()` on GET requests, computes an ETag hash, returns `304 Not Modified` when client ETag matches |
+| `error.middleware.ts` | Centralised error handler — catches errors thrown anywhere in the stack |
 
 ---
 

@@ -205,6 +205,12 @@ export function Login() {
               autoComplete="current-password"
             />
 
+            <div className="flex justify-end mt-2">
+              <Link to="/forgot-password" className="text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-colors duration-150">
+                Forgot password?
+              </Link>
+            </div>
+
             {/* Form Action Button */}
             <button
               type="submit"

@@ -5,6 +5,7 @@ import type { ProjectTask } from '../../types';
 import type { User } from '../../types/auth';
 import { decimalRegex } from '../../utils/validation';
 import { useAuth } from '../../hooks/useAuth';
+import { TaskAttachments } from './TaskAttachments';
 
 interface TaskDetailComponentProps {
   initialTask: ProjectTask;
@@ -559,6 +560,9 @@ export function TaskDetailComponent({
           <div />
         )}
       </div>
+
+      {/* 7. Attachments */}
+      <TaskAttachments taskId={task.id} currentUser={user} />
 
       {/* Divider */}
       <hr className="border-zinc-800" />

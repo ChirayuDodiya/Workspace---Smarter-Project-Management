@@ -68,6 +68,13 @@ EMAIL_FROM=your-email-id
 
 # Client/Frontend Configuration
 VITE_API_URL=http://localhost:5000/api/v1
+
+# MinIO Storage Configuration
+MINIO_ENDPOINT=minio
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=workspace-attachments
 ```
 
 ---
@@ -101,6 +108,13 @@ REDIS_URL=redis://127.0.0.1:6379
 # Email Service Configuration (Brevo)
 BREVO_API_KEY=your-brevo-api-key
 EMAIL_FROM=your-email-id
+
+# MinIO Storage Configuration
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=workspace-attachments
 ```
 
 ---
@@ -128,6 +142,7 @@ localhost:5173  ──►  Vite Dev Server  (local)
 localhost:5000  ──►  Express Server   (local, nodemon)
 localhost:3307  ──►  MariaDB          (Docker container)
 localhost:6379  ──►  Redis            (Docker container)
+localhost:9000  ──►  MinIO Storage    (Docker container)
 ```
 
 ### Step 1 — Start Infrastructure Containers
@@ -139,6 +154,7 @@ docker compose -f docker-compose.dev.yml up -d
 This starts:
 - `pm-mysql-dev` on host port `3307`
 - `pm-redis-dev` on host port `6379`
+- `pm-minio-dev` on host port `9000` & `9001`
 
 ---
 
@@ -219,6 +235,7 @@ Ensure the root `.env` is filled out correctly (see [Section 2.1](#21-root-env--
 Key differences from development:
 - `DATABASE_HOST=mysql` (Docker service name, not `localhost`)
 - `REDIS_URL=redis://redis:6379` (Docker service name)
+- `MINIO_ENDPOINT=minio` (Docker service name, not `localhost`)
 - `CLIENT_URL=http://localhost` (or your public domain)
 - `NODE_ENV=production`
 
@@ -306,7 +323,8 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 |---|---|---|---|---|
 | `pm-mysql-prod` | `mariadb:10.11` | `3307:3306` | always | — |
 | `pm-redis-prod` | `redis:7-alpine` | internal | always | — |
-| `pm-server-prod` | `./server/Dockerfile` | `5000:5000` | always | mysql healthy, redis healthy |
+| `pm-minio-prod` | `minio/minio:latest` | `9000:9000`, `9001` | always | — |
+| `pm-server-prod` | `./server/Dockerfile` | `5000:5000` | always | mysql, redis, minio |
 | `pm-client-prod` | `./client/Dockerfile` | `80:80` | always | server |
 
 ### Development (`docker-compose.dev.yml`)
@@ -315,6 +333,7 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 |---|---|---|---|
 | `pm-mysql-dev` | `mariadb:10.11` | `3307:3306` | always |
 | `pm-redis-dev` | `redis:7-alpine` | `6379:6379` | always |
+| `pm-minio-dev` | `minio/minio:latest` | `9000:9000`, `9001:9001` | always |
 
 ### Dockerfile Summaries
 

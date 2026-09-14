@@ -27,6 +27,7 @@ This document describes the technical architecture of the **Workspace - Smarter 
 | Reverse Proxy | Nginx 1.25 (production) |
 | Database | MariaDB 10.11 via Prisma ORM |
 | Cache | Redis 7 (ioredis) |
+| Object Storage | MinIO (S3-compatible) |
 | Email Service | Brevo REST API |
 | Real-time | Socket.io 4 |
 | Containerisation | Docker + Docker Compose |
@@ -91,7 +92,7 @@ src/
 ├── controllers/            # Grouped by resource domain
 │   ├── auth/               # register, verifyOTP, login, logout, me, refresh, forgot/reset/change-password
 │   ├── project/
-│   ├── task/
+│   ├── task/               # Including attachments.controller.ts for MinIO file uploads
 │   ├── comment/
 │   ├── dashboard/
 │   └── user/
@@ -127,6 +128,7 @@ src/
 │   ├── cron.service.ts     # Scheduled background jobs
 │   ├── activity.service.ts # Activity log creation helper
 │   ├── slug.service.ts     # Unique slug generation
+│   ├── storage.service.ts  # MinIO S3-compatible client initialization
 │   └── mail.service.ts     # Email delivery via Brevo API
 ├── prisma/
 │   └── client.ts           # Extended Prisma client with custom query methods
@@ -264,7 +266,8 @@ users ──────────────────────── p
   │
   ├── tasks ──────────────────── projects (project_id)
   │     │   (assigned_to)
-  │     └── comments (task_id, user_id, parent_id — nested replies)
+  │     ├── comments (task_id, user_id, parent_id — nested replies)
+  │     └── task_attachments (task_id, user_id, filename)
   │
   ├── activity_logs (subject_type, subject_id — polymorphic)
   └── refresh_tokens (user_id, token, expires_at)
@@ -278,6 +281,7 @@ users ──────────────────────── p
 | `projects` | `id`, `name`, `slug` (unique), `status`, `owner_id`, `start_date`, `end_date`, `budget`, `deleted_at` |
 | `tasks` | `id`, `project_id`, `title`, `status`, `priority`, `assigned_to`, `sort_order`, `due_date`, `estimated_hours`, `actual_hours`, `deleted_at` |
 | `comments` | `id`, `task_id`, `user_id`, `body`, `parent_id` (threaded), `deleted_at` |
+| `task_attachments` | `id`, `task_id`, `user_id`, `filename`, `original_name`, `mime_type`, `size`, `deleted_at` |
 | `team_members` | `id`, `project_id`, `user_id`, `deleted_at` |
 | `activity_logs` | `id`, `subject_type`, `subject_id`, `user_id`, `action`, `properties` |
 | `refresh_tokens` | `id`, `user_id`, `refresh_token`, `expires_at` |
@@ -382,13 +386,15 @@ The application is fully containerised with two Docker Compose configurations:
 |---|---|---|
 | `mysql` (dev) | `mariadb:10.11` | `3307:3306` |
 | `redis` (dev) | `redis:7-alpine` | `6379:6379` |
+| `minio` (dev) | `minio/minio:latest` | `9000:9000`, `9001:9001` |
 
-**Production (`docker-compose.yml`):** All four services run in containers.
+**Production (`docker-compose.yml`):** All services run in containers.
 
 | Service | Image / Build | Port | Notes |
 |---|---|---|---|
 | `mysql` | `mariadb:10.11` | `3307:3306` | Persisted volume |
 | `redis` | `redis:7-alpine` | Internal | Persisted volume |
+| `minio` | `minio/minio:latest` | `9000:9000`, `9001:9001` | Persisted volume |
 | `server` | `./server/Dockerfile` | `5000:5000` | Runs `prisma migrate deploy` on startup |
 | `client` | `./client/Dockerfile` | `80:80` | Served via Nginx |
 

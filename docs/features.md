@@ -19,9 +19,10 @@ A detailed walkthrough of every feature in the Workspace - Smarter Project Manag
 11. [Live Presence](#11-live-presence)
 12. [Toast Notifications](#12-toast-notifications)
 13. [CSV Export](#13-csv-export)
-14. [User Management (Admin)](#14-user-management-admin)
-15. [Rate Limiting](#15-rate-limiting)
-16. [HTTP Caching (ETag)](#16-http-caching-etag)
+14. [Task Attachments (MinIO)](#14-task-attachments-minio)
+15. [User Management (Admin)](#15-user-management-admin)
+16. [Rate Limiting](#16-rate-limiting)
+17. [HTTP Caching (ETag)](#17-http-caching-etag)
 
 ---
 
@@ -371,7 +372,26 @@ The browser automatically prompts a file download.
 
 ---
 
-## 14. User Management (Admin)
+## 14. Task Attachments (MinIO)
+
+### What it does
+Allows team members to upload, view, and download multiple file attachments on tasks.
+
+### Who can use it
+Any authenticated user who can view the task.
+
+### How it works
+
+- **Storage Backend**: Files are stored in an S3-compatible MinIO object storage server (bucket: `workspace-attachments`).
+- **Upload**: `POST /tasks/:id/attachments` handles `multipart/form-data` requests. Multer parses the files into memory, which are then streamed to MinIO. Allows up to 10 files (50MB max each) per request.
+- **File Organization**: Object keys are formatted as `[project-slug]/task-[taskId]/[timestamp]-[safe-filename]`.
+- **Database Tracking**: Metadata (filename, size, mimetype, uploader) is stored in the `task_attachments` table.
+- **Download**: `GET /tasks/:id/attachments` generates and returns secure, temporary pre-signed S3 URLs for each attachment, allowing the client to download files securely without exposing MinIO credentials.
+- **Deletion**: Soft-deletes the attachment from the database via `DELETE /tasks/:id/attachments/:attachmentId`.
+
+---
+
+## 15. User Management (Admin)
 
 ### What it does
 Gives admins full control over user accounts — role assignment, account deactivation, soft deletion, and restoration.
@@ -395,7 +415,7 @@ Accessible via `/change-role` (linked from the Navbar for admins only).
 
 ---
 
-## 15. Rate Limiting
+## 16. Rate Limiting
 
 ### What it does
 Protects the API from abuse by limiting how many requests can be made within a 60-second window.
@@ -420,7 +440,7 @@ If the limit is exceeded, the server responds with `429 Too Many Requests`.
 
 ---
 
-## 16. HTTP Caching (ETag)
+## 17. HTTP Caching (ETag)
 
 ### What it does
 Reduces unnecessary data transfer by allowing browsers and API clients to skip re-downloading unchanged responses.

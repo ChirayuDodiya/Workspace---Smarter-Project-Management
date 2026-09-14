@@ -91,7 +91,39 @@ services:
     depends_on:
       - server
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: pm-qdrant-prod
+    ports:
+      - '6333:6333'
+    volumes:
+      - qdrant_prod_data:/qdrant/storage
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rag-server:
+    build:
+      context: ./rag-server
+      dockerfile: Dockerfile
+    container_name: pm-rag-server-prod
+    ports:
+      - '8000:8000'
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: "http://qdrant:6333"
+      GROQ_API_KEY: ${GROQ_API_KEY}
+    restart: always
+    depends_on:
+      qdrant:
+        condition: service_healthy
+
 volumes:
   mysql_prod_data:
   redis_prod_data:
   minio_prod_data:
+  qdrant_prod_data:

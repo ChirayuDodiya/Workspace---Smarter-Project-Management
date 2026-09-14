@@ -75,6 +75,9 @@ MINIO_PORT=9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET_NAME=workspace-attachments
+
+# AI / RAG Configuration
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ---
@@ -140,9 +143,11 @@ In development mode, **only the database and Redis run in Docker**. The Node.js 
 ```
 localhost:5173  ──►  Vite Dev Server  (local)
 localhost:5000  ──►  Express Server   (local, nodemon)
+localhost:8000  ──►  FastAPI RAG Server (local, uvicorn)
 localhost:3307  ──►  MariaDB          (Docker container)
 localhost:6379  ──►  Redis            (Docker container)
 localhost:9000  ──►  MinIO Storage    (Docker container)
+localhost:6333  ──►  Qdrant VectorDB  (Docker container)
 ```
 
 ### Step 1 — Start Infrastructure Containers
@@ -155,6 +160,7 @@ This starts:
 - `pm-mysql-dev` on host port `3307`
 - `pm-redis-dev` on host port `6379`
 - `pm-minio-dev` on host port `9000` & `9001`
+- `pm-qdrant-dev` on host port `6333`
 
 ---
 
@@ -198,6 +204,26 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
+### Step 4 — Set Up & Run the RAG Server (AI)
+
+Open a **new terminal**:
+
+```bash
+cd rag-server
+# Optional: Create a virtual environment
+python -m venv venv
+# Activate virtual environment
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
+
+The AI API is now available at `http://localhost:8000`.
+
+---
+
 ### Stopping Development Containers
 
 To pause the database and cache containers without removing data:
@@ -226,6 +252,7 @@ Port 80  ──►  Nginx (client container)
                  ├── serves  /          →  React static files (dist/)
                  ├── proxies /api/v1/   →  Express server:5000
                  └── proxies /socket.io →  Express server:5000 (WebSocket)
+Port 8000 ──► FastAPI RAG Server container
 ```
 
 ### Step 1 — Configure Environment
@@ -312,6 +339,7 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 | `/` | `dist/` static files | React Router SPA; falls back to `index.html` |
 | `/api/v1/*` | `http://server:5000/api/v1/` | REST API |
 | `/socket.io/*` | `http://server:5000/socket.io/` | WebSocket upgrade headers set |
+| `/rag/*` | `http://rag-server:8000/` | FastAPI RAG Server |
 
 ---
 
@@ -324,6 +352,8 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 | `pm-mysql-prod` | `mariadb:10.11` | `3307:3306` | always | — |
 | `pm-redis-prod` | `redis:7-alpine` | internal | always | — |
 | `pm-minio-prod` | `minio/minio:latest` | `9000:9000`, `9001` | always | — |
+| `pm-qdrant-prod` | `qdrant/qdrant:latest` | `6333:6333` | always | — |
+| `pm-rag-server-prod` | `./rag-server/Dockerfile` | `8000:8000` | always | qdrant |
 | `pm-server-prod` | `./server/Dockerfile` | `5000:5000` | always | mysql, redis, minio |
 | `pm-client-prod` | `./client/Dockerfile` | `80:80` | always | server |
 
@@ -334,6 +364,7 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 | `pm-mysql-dev` | `mariadb:10.11` | `3307:3306` | always |
 | `pm-redis-dev` | `redis:7-alpine` | `6379:6379` | always |
 | `pm-minio-dev` | `minio/minio:latest` | `9000:9000`, `9001:9001` | always |
+| `pm-qdrant-dev` | `qdrant/qdrant:latest` | `6333:6333` | always |
 
 ### Dockerfile Summaries
 
@@ -347,6 +378,11 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 **`client/Dockerfile`** — Multi-stage build:
 1. **Stage 1 (builder):** Node 20 Alpine — installs deps, runs `npm run build`, produces `dist/`.
 2. **Stage 2 (serve):** Nginx 1.25 Alpine — copies `nginx.conf` + `dist/`, exposes port 80.
+
+**`rag-server/Dockerfile`** — Python 3.11 Slim:
+1. Installs Python dependencies from `requirements.txt`.
+2. Copies FastAPI source code.
+3. Runs via `uvicorn main:app` on port 8000.
 
 ---
 

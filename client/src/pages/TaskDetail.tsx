@@ -9,6 +9,7 @@ import { socket } from '../services/socket';
 import { useAuth } from '../hooks/useAuth';
 import TaskDetailSkeleton from '../components/TaskDetail/TaskDetailSkeleton';
 import TaskCommentsSkeleton from '../components/TaskDetail/TaskCommentsSkeleton';
+import TaskRAG from '../components/TaskDetail/TaskRAG';
 
 export function TaskDetail() {
   const { slug, taskId } = useParams<{ slug: string; taskId: string }>();
@@ -18,7 +19,7 @@ export function TaskDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'ai'>('comments');
 
   const triggerRefresh = () => setActivityTrigger((prev) => prev + 1);
 
@@ -203,14 +204,30 @@ export function TaskDetail() {
                 >
                   Activity
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('ai')}
+                  className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer focus:outline-none flex items-center justify-center gap-1.5 ${
+                    activeTab === 'ai'
+                      ? 'text-white border-b-2 border-[#098032] bg-zinc-900/40'
+                      : 'text-[#098032] hover:text-[#0b9c3d] bg-[#045c22]/10 hover:bg-[#045c22]/20'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                    <path fillRule="evenodd" d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z" clipRule="evenodd" />
+                  </svg>
+                  Ask AI
+                </button>
               </div>
 
               {/* Tab Content */}
               <div className="p-4">
                 {activeTab === 'comments' ? (
                   <TaskComments taskId={task.id} onCommentAdded={triggerRefresh} />
-                ) : (
+                ) : activeTab === 'activity' ? (
                   <TaskActivityTimeline taskId={task.id} activityTrigger={activityTrigger} />
+                ) : (
+                  <TaskRAG taskId={task.id} />
                 )}
               </div>
             </div>

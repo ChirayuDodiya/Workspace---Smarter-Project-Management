@@ -68,10 +68,10 @@ Built with **React 19 + TypeScript** on the frontend and **Node.js + Express + P
 
 ### Development
 
-> Requires: Docker, Node.js 20+
+> Requires: Docker, Node.js 20+, Python 3.11+
 
 ```bash
-# 1. Start database and Redis
+# 1. Start databases (MariaDB, Redis, MinIO, Qdrant)
 docker compose -f docker-compose.dev.yml up -d
 
 # 2. Configure environment
@@ -79,10 +79,22 @@ cp .env.example .env
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 
-# 3. Start backend
+# 3. Start Node backend (Terminal 1)
 cd server && npm install && npm run prisma:migrate && npm run prisma:seed && npm run dev
 
-# 4. Start frontend (new terminal)
+# 4. Start AI backend (Terminal 2)
+cd AI
+uv venv --python 3.11
+.\.venv\Scripts\Activate.ps1   # (On Mac/Linux: source .venv/bin/activate)
+uv pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# 5. Start AI Background Worker (Terminal 3)
+cd AI
+.\.venv\Scripts\Activate.ps1
+rq worker
+
+# 6. Start frontend (Terminal 4)
 cd client && npm install && npm run dev
 ```
 
@@ -93,8 +105,9 @@ Open [http://localhost:5173](http://localhost:5173).
 > Requires: Docker only
 
 ```bash
-cp .env.example .env   # Fill in secrets and passwords
+cp .env.example .env   # Fill in secrets and passwords (including GROQ_API_KEY)
 
+# This spins up EVERYTHING automatically (React, Node, AI Server, AI Worker, DBs)
 docker compose up --build -d
 
 # Optional: seed demo data

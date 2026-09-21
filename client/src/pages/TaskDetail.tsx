@@ -5,6 +5,7 @@ import type { ProjectTask } from '../types';
 import TaskDetailComponent from '../components/TaskDetail/TaskDetailComponent';
 import TaskComments from '../components/TaskDetail/TaskComments';
 import TaskActivityTimeline from '../components/TaskDetail/TaskActivityTimeline';
+import AIChatTab from '../components/TaskDetail/AIChatTab';
 import { socket } from '../services/socket';
 import { useAuth } from '../hooks/useAuth';
 import TaskDetailSkeleton from '../components/TaskDetail/TaskDetailSkeleton';
@@ -18,7 +19,7 @@ export function TaskDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'activity' | 'ai'>('comments');
 
   const triggerRefresh = () => setActivityTrigger((prev) => prev + 1);
 
@@ -203,14 +204,27 @@ export function TaskDetail() {
                 >
                   Activity
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('ai')}
+                  className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer focus:outline-none ${
+                    activeTab === 'ai'
+                      ? 'text-white border-b-2 border-[#098032] bg-zinc-900/40'
+                      : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  AI Assistant
+                </button>
               </div>
 
               {/* Tab Content */}
               <div className="p-4">
                 {activeTab === 'comments' ? (
                   <TaskComments taskId={task.id} onCommentAdded={triggerRefresh} />
-                ) : (
+                ) : activeTab === 'activity' ? (
                   <TaskActivityTimeline taskId={task.id} activityTrigger={activityTrigger} />
+                ) : (
+                  <AIChatTab taskId={task.id} projectSlug={slug!} />
                 )}
               </div>
             </div>

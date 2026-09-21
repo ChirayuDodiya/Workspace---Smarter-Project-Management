@@ -53,14 +53,14 @@ JWT_REFRESH_SECRET=your-refresh-token-secret
 CLIENT_URL=http://localhost
 
 # Database Configuration
-DATABASE_HOST=mysql          # Service name inside Docker network
+DATABASE_HOST=localhost          # Local machine override
 DATABASE_USER=your-username
 DATABASE_PASSWORD=your-password
 DATABASE_NAME=projectmanager
-DATABASE_PORT=3306
+DATABASE_PORT=3307               # Local mapped port
 
 # Redis Configuration
-REDIS_URL=redis://redis:6379 # Service name inside Docker network
+REDIS_URL=redis://localhost:6379 # Local machine override
 
 # Email Service Configuration (Brevo)
 BREVO_API_KEY=your-brevo-api-key
@@ -232,12 +232,9 @@ Port 80  ──►  Nginx (client container)
 
 Ensure the root `.env` is filled out correctly (see [Section 2.1](#21-root-env--production--docker-compose)).
 
-Key differences from development:
-- `DATABASE_HOST=mysql` (Docker service name, not `localhost`)
-- `REDIS_URL=redis://redis:6379` (Docker service name)
-- `MINIO_ENDPOINT=minio` (Docker service name, not `localhost`)
-- `CLIENT_URL=http://localhost` (or your public domain)
-- `NODE_ENV=production`
+Note: In our new dual-environment setup, your root `.env` file should contain your local development values (e.g. `DATABASE_HOST=localhost`, `REDIS_URL=redis://localhost:6379`, `MINIO_ENDPOINT=localhost`). 
+
+When you run `docker-compose up -d --build`, Docker will automatically inject the correct internal service names (like `mysql`, `redis`, `minio`), securely overriding your local `.env` values for production!
 
 ---
 

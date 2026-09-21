@@ -67,10 +67,44 @@ export function TaskAttachments({ taskId, currentUser }: TaskAttachmentsProps) {
     setError('');
 
     try {
+      // 1. Upload to Node backend (MinIO)
       await api.post(`/tasks/${taskId}/attachments`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       await fetchAttachments();
+
+      // 2. Upload to AI backend if it's a supported document format
+      const aiApiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api/v1/ai';
+      const allowedExtensions = ['.pdf', '.txt', '.md', '.docx'];
+      
+      const aiUploadPromises = Array.from(files)
+        .filter(file => {
+          const lowerName = file.name.toLowerCase();
+          return allowedExtensions.some(ext => lowerName.endsWith(ext));
+        })
+        .map(file => {
+          const aiFormData = new FormData();
+          // Provide project_id from somewhere. Wait, TaskAttachments doesn't have projectId.
+          // For now, we will pass taskId and parse projectId on the backend or frontend.
+          // Let's pass a dummy project_id for now or grab it from the route.
+          // Actually, we can just send taskId and let the AI backend know.
+          aiFormData.append('file', file);
+          aiFormData.append('task_id', String(taskId));
+          // We need project_id. Let's get it from the URL or props.
+          const slug = window.location.pathname.split('/')[2];
+          aiFormData.append('project_id', slug); 
+          
+          return fetch(`${aiApiUrl}/upload`, {
+            method: 'POST',
+            credentials: 'include',
+            body: aiFormData,
+          });
+        });
+        
+      if (aiUploadPromises.length > 0) {
+        Promise.all(aiUploadPromises).catch(e => console.error("AI Upload failed", e));
+      }
+
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to upload files');
     } finally {

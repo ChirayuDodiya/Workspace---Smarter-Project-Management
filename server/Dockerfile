@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Install system dependencies needed for Prisma
 RUN apk add --no-cache openssl
@@ -21,4 +21,4 @@ EXPOSE 5000
 ENV NODE_ENV=production
 
 # Start command
-CMD ["node", "index.js"]
+CMD ["node", "dist/index.js"]

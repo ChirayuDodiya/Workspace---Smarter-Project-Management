@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon --exec tsx index.ts",
     "prod": "node dist/index.js",
+    "preprod": "npm run build",
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "postinstall": "prisma generate",

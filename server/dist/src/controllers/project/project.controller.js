@@ -121,7 +121,7 @@ const getProjectBySlug = async (slug) => {
 };
 // GET: /api/v1/projects/{slug} — Show with task summary stats
 const showProject = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -140,7 +140,7 @@ const showProject = asyncHandler(async (req, res) => {
 });
 // PUT: /api/v1/projects/{slug} — Update (owner or admin only)
 const updateProject = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -170,7 +170,7 @@ const updateProject = asyncHandler(async (req, res) => {
 });
 // DELETE: /api/v1/projects/{slug} — Soft delete (admin only)
 const deleteProject = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -195,7 +195,7 @@ const deleteProject = asyncHandler(async (req, res) => {
 });
 // GET: /api/v1/projects/{slug}/stats — Task count by status, total hours, overdue count
 const projectStats = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     // Try retrieving cached stats first
     const cachedData = await getCachedStats(slug);
     if (cachedData) {
@@ -217,7 +217,7 @@ const projectStats = asyncHandler(async (req, res) => {
 });
 // GET: /api/v1/projects/{slug}/tasks — List with filtering (status, priority, assigned_to), sorting, pagination
 const listTasks = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -276,7 +276,7 @@ const listTasks = asyncHandler(async (req, res) => {
 });
 // POST: /api/v1/projects/{slug}/tasks — Create task within project
 const createTask = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -309,7 +309,7 @@ const createTask = asyncHandler(async (req, res) => {
 });
 // GET: /api/v1/projects/{slug}/team-members — List all team members assigned to project
 const teamMembers = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await getProjectBySlug(slug);
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -338,7 +338,7 @@ const listManagers = asyncHandler(async (req, res) => {
 });
 // POST: /api/v1/projects/{slug}/team-members — Add a team member
 const addTeamMember = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const { user_id } = req.body;
     const project = req.project || (await getProjectBySlug(slug));
     if (!project) {
@@ -402,7 +402,8 @@ const addTeamMember = asyncHandler(async (req, res) => {
 });
 // DELETE: /api/v1/projects/{slug}/team-members/{userId} — Remove a team member
 const removeTeamMember = asyncHandler(async (req, res) => {
-    const { slug, userId: userIdParam } = req.params;
+    const slug = req.params.slug;
+    const userIdParam = req.params.userId;
     const project = req.project || (await getProjectBySlug(slug));
     if (!project) {
         return errorResponse(res, 'Project not found', 404);
@@ -452,7 +453,7 @@ const removeTeamMember = asyncHandler(async (req, res) => {
 });
 // GET: /api/v1/projects/:slug/export-tasks - Export project tasks to CSV
 const exportProjectTasks = asyncHandler(async (req, res) => {
-    const { slug } = req.params;
+    const slug = req.params.slug;
     const project = await prisma.projects.findFirst({
         where: { slug, deleted_at: null },
     });

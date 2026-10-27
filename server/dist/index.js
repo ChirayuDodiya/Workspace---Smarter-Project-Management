@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import { app } from './src/app.js';
 import './src/services/cron.service.js';
 import prisma from './src/prisma/client.js';
+import { initMinio } from './src/services/storage.service.js';
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
@@ -40,7 +41,8 @@ const handleLeaveProject = (socket, io) => {
         socket.userId = null;
     }
 };
-io.on('connection', (socket) => {
+io.on('connection', (rawSocket) => {
+    const socket = rawSocket;
     // console.log('A user connected:', socket.id);
     // Join user-specific notification room
     socket.on('join:user', (userId) => {
@@ -104,8 +106,10 @@ server.listen(PORT, async () => {
     try {
         await prisma.$connect();
         console.log('Database connected successfully');
+        // Initialize MinIO Bucket
+        await initMinio();
     }
     catch (error) {
-        console.error('Database connection failed:', error.message);
+        console.error('Startup failed:', error?.message || error);
     }
 });

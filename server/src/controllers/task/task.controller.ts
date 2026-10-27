@@ -229,7 +229,7 @@ const listTaskComments = asyncHandler(async (req, res) => {
 
   const serializedComments = comments.map((c: any) => ({
     ...serializeComment({ ...c, user: c.users }),
-    replies: [],
+    replies: [] as any[],
   }));
 
   const commentMap: Record<number, any> = {};

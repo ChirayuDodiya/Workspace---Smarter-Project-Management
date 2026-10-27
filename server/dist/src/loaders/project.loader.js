@@ -6,7 +6,10 @@ const loadProjectBySlug = async (req, res, next) => {
         return errorResponse(res, 'Project slug is required', 400);
     }
     const project = await prisma.projects.findFirst({
-        where: { slug, deleted_at: null },
+        where: {
+            slug: req.params.slug,
+            deleted_at: null,
+        },
     });
     if (!project) {
         return errorResponse(res, 'Project not found', 404);

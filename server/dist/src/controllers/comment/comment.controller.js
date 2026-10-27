@@ -6,7 +6,7 @@ import { createActivityLog } from '../../services/activity.service.js';
 import { broadcastCommentUpdated, broadcastCommentDeleted } from '../../services/socket.service.js';
 // PUT: /api/v1/comments/{id} — Edit own comment only (within 15 minutes)
 const updateComment = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
     const commentId = Number(id);
     if (Number.isNaN(commentId)) {
         return errorResponse(res, 'Invalid comment ID', 400);
@@ -27,7 +27,7 @@ const updateComment = asyncHandler(async (req, res) => {
     if (comment.user_id !== req.user.id) {
         return errorResponse(res, 'You are not authorized to edit this comment', 403);
     }
-    const createdAtTime = new Date(comment.created_at || comment.createdAt).getTime();
+    const createdAtTime = new Date(comment.created_at).getTime();
     const elapsedMinutes = (Date.now() - createdAtTime) / 1000 / 60;
     if (elapsedMinutes > 15) {
         return errorResponse(res, 'Comment can only be edited within 15 minutes of creation', 400);
@@ -54,7 +54,7 @@ const updateComment = asyncHandler(async (req, res) => {
 });
 // DELETE: /api/v1/comments/{id} — Soft delete own comment or any as admin
 const deleteComment = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const id = req.params.id;
     const commentId = Number(id);
     if (Number.isNaN(commentId)) {
         return errorResponse(res, 'Invalid comment ID', 400);
@@ -78,7 +78,7 @@ const deleteComment = asyncHandler(async (req, res) => {
         return errorResponse(res, 'You are not authorized to delete this comment', 403);
     }
     if (isOwner && !isAdmin) {
-        const createdAtTime = new Date(comment.created_at || comment.createdAt).getTime();
+        const createdAtTime = new Date(comment.created_at).getTime();
         const elapsedMinutes = (Date.now() - createdAtTime) / 1000 / 60;
         if (elapsedMinutes > 15) {
             return errorResponse(res, 'Comment can only be deleted within 15 minutes of creation', 400);

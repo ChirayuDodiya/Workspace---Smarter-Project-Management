@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { app } from './src/app.js';
 import './src/services/cron.service.js';
 import prisma from './src/prisma/client.js';
@@ -16,11 +16,21 @@ const io = new Server(server, {
 
 app.set('io', io);
 
+interface CustomSocket extends Socket {
+  projectSlug?: string | null;
+  userId?: number | null;
+}
+
+interface PresenceUser {
+  user: any;
+  socketIds: Set<string>;
+}
+
 // Map of projectSlug -> Map of userId -> { user, socketIds: Set }
-const projectPresence = new Map();
+const projectPresence = new Map<string, Map<number, PresenceUser>>();
 
 // Helper to handle leaving a project presence
-const handleLeaveProject = (socket, io) => {
+const handleLeaveProject = (socket: CustomSocket, io: Server) => {
   const { projectSlug, userId } = socket;
   if (projectSlug && userId) {
     socket.leave(`project:${projectSlug}`);
@@ -46,20 +56,21 @@ const handleLeaveProject = (socket, io) => {
   }
 };
 
-io.on('connection', (socket) => {
+io.on('connection', (rawSocket: Socket) => {
+  const socket = rawSocket as CustomSocket;
   // console.log('A user connected:', socket.id);
 
   // Join user-specific notification room
-  socket.on('join:user', (userId) => {
+  socket.on('join:user', (userId: number) => {
     socket.join(`user:${userId}`);
     // console.log(`Socket ${socket.id} joined user room: user:${userId}`);
   });
 
   // Join project room with presence tracking
-  socket.on('join:project', (payload) => {
+  socket.on('join:project', (payload: any) => {
     // Gracefully support old client code if payload is just projectSlug string
-    let projectSlug;
-    let user;
+    let projectSlug: string | undefined;
+    let user: any;
 
     if (typeof payload === 'string') {
       projectSlug = payload;
@@ -84,14 +95,14 @@ io.on('connection', (socket) => {
       if (!projectPresence.has(projectSlug)) {
         projectPresence.set(projectSlug, new Map());
       }
-      const usersInProject = projectPresence.get(projectSlug);
+      const usersInProject = projectPresence.get(projectSlug)!;
       if (!usersInProject.has(user.id)) {
         usersInProject.set(user.id, {
           user,
           socketIds: new Set(),
         });
       }
-      usersInProject.get(user.id).socketIds.add(socket.id);
+      usersInProject.get(user.id)!.socketIds.add(socket.id);
 
       // console.log(`Socket ${socket.id} joined project room: project:${projectSlug} (User ID: ${user.id})`);
 
@@ -123,7 +134,7 @@ server.listen(PORT, async () => {
     
     // Initialize MinIO Bucket
     await initMinio();
-  } catch (error) {
-    console.error('Startup failed:', error.message);
+  } catch (error: any) {
+    console.error('Startup failed:', error?.message || error);
   }
 });

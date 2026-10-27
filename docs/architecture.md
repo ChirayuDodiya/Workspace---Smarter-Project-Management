@@ -23,9 +23,13 @@ This document describes the technical architecture of the **Workspace - Smarter 
 | Concern | Technology |
 |---|---|
 | Frontend | React 19, TypeScript, Vite 8, TailwindCSS v4 |
-| Backend | Node.js, Express 5, TypeScript |
+| Backend (Core API) | Node.js, Express 5, TypeScript |
+| Backend (AI Microservice) | Python 3.11+, FastAPI, LangChain |
 | Reverse Proxy | Nginx 1.25 (production) |
-| Database | MariaDB 10.11 via Prisma ORM |
+| Relational Database | MariaDB 10.11 via Prisma ORM |
+| Vector Database | Qdrant (dense vectors, cosine distance) |
+| Asynchronous Job Queue | Redis Queue (RQ) |
+| LLM & Embeddings | Groq (openai/gpt-oss-120b), HuggingFace (all-MiniLM-L6-v2) |
 | Cache | Redis 7 (ioredis) |
 | Object Storage | MinIO (S3-compatible) |
 | Email Service | Brevo REST API |
@@ -38,7 +42,7 @@ This document describes the technical architecture of the **Workspace - Smarter 
 
 ## 2. High-Level Architecture
 
-![High Level Architecture](high-level-architecture.png)
+![High Level Architecture](high-level-architecture.jpeg)
 
 ---
 
@@ -151,6 +155,42 @@ src/
 
 ---
 
+### AI Microservice Architecture (`AI/`)
+
+The AI service operates as an independent microservice responsible for document ingestion, vectorization, and contextual question-answering (RAG).
+
+```
+AI/
+├── main.py                   # FastAPI application & CORS configuration
+├── worker.py                 # Redis Queue worker (SimpleWorker on Windows, Worker on Linux)
+├── config.py                 # Environment configurations (Qdrant, Groq, Redis, JWT)
+├── requirements.txt          # Python dependencies
+├── routers/
+│   └── rag_router.py         # Routes for /upload, /query, /job/{job_id}
+├── services/
+│   ├── document_service.py   # Multi-format doc loading, chunking, and Qdrant ingestion
+│   └── query_service.py      # LangChain retrieval chain with metadata filter & Groq LLM
+├── dependencies/
+│   ├── embeddings.py         # HuggingFace all-MiniLM-L6-v2 embeddings (384-dim)
+│   ├── llm.py                # Groq ChatGroq client (openai/gpt-oss-120b)
+│   ├── rate_limiter.py       # JWT cookie validation + Redis rate limiter (6 req/min)
+│   └── vectorstore.py        # Qdrant client & collection initialization
+└── temp_uploads/             # Staging directory for incoming files before worker processing
+```
+
+#### Ingestion & Processing Pipeline
+1. **Upload & Enqueue:** `POST /api/v1/ai/upload` receives a document (`.pdf`, `.txt`, `.md`, `.docx`), buffers it in `temp_uploads/`, and enqueues a background job into Redis Queue (RQ) with `job_timeout='1h'`.
+2. **Background Processing:** The RQ worker (`worker.py`) picks up the task, invokes `process_and_store_document`, extracts content using the appropriate loader (`PyPDFLoader`, `TextLoader`, or `Docx2txtLoader`), and chunks text using `RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)`.
+3. **Metadata Injection:** Each chunk is prefixed with `Source Document: <filename>` to optimize title-based vector searches, and tagged with `project_id`, `task_id`, and `source_file`.
+4. **Embedding & Storage:** Chunks are vectorized using `sentence-transformers/all-MiniLM-L6-v2` (384 dimensions) and stored in Qdrant collection `workspace_documents`. The temporary upload is cleaned up on completion.
+
+#### RAG Retrieval & Inference Pipeline
+1. **Authentication & Rate Limiting:** `POST /api/v1/ai/query` passes through `rate_limiter`, which decodes the `accessToken` JWT cookie and enforces a Redis-backed sliding window of 6 requests per minute per user.
+2. **Dynamic Filtering:** The Qdrant retriever applies `rest.FieldCondition` on `metadata.project_id` and optional `metadata.task_id`, isolating documents strictly to the current workspace scope.
+3. **Synthesis:** LangChain's `create_stuff_documents_chain` combines retrieved context into the prompt, sent to Groq (`openai/gpt-oss-120b`) for concise generation.
+
+---
+
 ## 4. Frontend Architecture
 
 ### Technology Stack
@@ -182,6 +222,9 @@ src/
 │   ├── TaskDetail.tsx       # Full task view with comments and activity
 │   ├── Login.tsx
 │   ├── Register.tsx
+│   ├── ForgotPassword.tsx   # Email-based password reset request
+│   ├── ResetPassword.tsx    # Secure token-based password reset
+│   ├── ChangePassword.tsx   # Authenticated password update
 │   └── ChangeRole.tsx       # Admin user management
 ├── components/             # Colocated feature components (grouped by page)
 │   ├── Dashboard/
@@ -194,11 +237,17 @@ src/
 │   │   ├── AddTaskModal.tsx
 │   │   ├── ProjectDetailsCard.tsx
 │   │   ├── ProjectMembersModal.tsx
-│   │   └── ProjectStats.tsx
+│   │   ├── ProjectStats.tsx
+│   │   ├── ActualHoursPopUp.tsx
+│   │   ├── KanbanBoard.tsx
+│   │   ├── KanbanColumn.tsx
+│   │   └── TaskCard.tsx
 │   ├── TaskDetail/
 │   │   ├── TaskDetailComponent.tsx
 │   │   ├── TaskComments.tsx
-│   │   └── TaskActivityTimeline.tsx
+│   │   ├── TaskActivityTimeline.tsx
+│   │   ├── TaskAttachments.tsx
+│   │   └── AIChatTab.tsx
 │   ├── Auth/
 │   ├── ChangeRole/
 │   ├── Navbar.tsx
@@ -234,11 +283,14 @@ Route guards are implemented with React Router layout routes:
 ```
 /login           → PublicRoute (redirects authenticated users to /)
 /register        → PublicRoute
+/forgot-password → PublicRoute
+/reset-password  → PublicRoute
 
 /                → ProtectedRoute → Dashboard
 /projects/:slug  → ProtectedRoute → ProjectDetail
 /projects/:slug/tasks/:taskId → ProtectedRoute → TaskDetail
 /change-role     → ProtectedRoute → ChangeRole (Admin only)
+/change-password → ProtectedRoute → ChangePassword
 ```
 
 ---
@@ -292,6 +344,17 @@ users ──────────────────────── p
 | `tasks_status` | `todo`, `in_progress`, `in_review`, `done` |
 | `tasks_priority` | `low`, `medium`, `high`, `critical` |
 | `users_role` | `admin`, `manager`, `developer` |
+
+### Vector Database Schema (Qdrant)
+
+The AI microservice stores document chunk embeddings in a **Qdrant** collection named `workspace_documents`.
+
+| Parameter | Configuration |
+|---|---|
+| Vector Dimension | `384` (`sentence-transformers/all-MiniLM-L6-v2`) |
+| Distance Metric | `Cosine` |
+| Payload Metadata | `metadata.project_id`, `metadata.task_id`, `metadata.source_file`, `page_content` |
+| Indexing & Filtering | Exact match filtering on `project_id` and `task_id` for cross-tenant isolation |
 
 ---
 
@@ -387,6 +450,7 @@ The application is fully containerised with two Docker Compose configurations:
 | `mysql` (dev) | `mariadb:10.11` | `3307:3306` |
 | `redis` (dev) | `redis:7-alpine` | `6379:6379` |
 | `minio` (dev) | `minio/minio:latest` | `9000:9000`, `9001:9001` |
+| `qdrant` (dev) | `qdrant/qdrant:latest` | `6333:6333` |
 
 **Production (`docker-compose.yml`):** All services run in containers.
 
@@ -397,13 +461,17 @@ The application is fully containerised with two Docker Compose configurations:
 | `minio` | `minio/minio:latest` | `9000:9000`, `9001:9001` | Persisted volume |
 | `server` | `./server/Dockerfile` | `5000:5000` | Runs `prisma migrate deploy` on startup |
 | `client` | `./client/Dockerfile` | `80:80` | Served via Nginx |
+| `qdrant` | `qdrant/qdrant:latest` | Internal (`6333`) | Persisted vector storage (`qdrant_prod_data`) |
+| `ai-server` | `./AI/Dockerfile` | `8000:8000` | FastAPI RAG backend (`uvicorn main:app`) |
+| `ai-worker` | `./AI/Dockerfile` | Internal | RQ background document processor (`rq worker`) |
 
 ### Service Startup Order (Production)
 
 ```
 MariaDB (healthy) ──┐
-                    ├──► server (runs migrations + starts) ──► client (Nginx)
+MinIO   (healthy) ──┼──► server (runs migrations + starts) ──► client (Nginx)
 Redis   (healthy) ──┘
+Redis + Qdrant   ───┴──► ai-server & ai-worker
 ```
 
 ### UI Design Reference

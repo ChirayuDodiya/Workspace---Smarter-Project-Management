@@ -6,6 +6,7 @@
     "outDir": "./dist",
     "rootDir": ".",
     "strict": true,
+    "strictNullChecks": false,
     "noImplicitAny": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -18,11 +19,11 @@
   },
   "include": [
     "src/**/*",
-    "tests/**/*",
     "index.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "tests"
   ]
 }

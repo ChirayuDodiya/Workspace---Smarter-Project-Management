@@ -29,7 +29,7 @@ const parseDecimal = (value) => {
 };
 const positiveInteger = (field) => z.preprocess(parseInteger, z.number().int().positive(`${field} must be a positive integer`));
 const taskHours = (field) => z.preprocess(parseDecimal, z
-    .number({ invalid_type_error: `${field} must be a valid number` })
+    .number({ message: `${field} must be a valid number` })
     .nonnegative(`${field} cannot be negative`)
     .max(9999.9, `${field} must be a valid DECIMAL(5,1)`)
     .refine((value) => /^\d{1,4}(\.\d)?$/.test(String(value)), `${field} must be a valid DECIMAL(5,1)`));
@@ -43,7 +43,7 @@ const taskCreateSchema = z.object({
     status: statusEnum.optional(),
     priority: priorityEnum.optional(),
     assigned_to: positiveInteger('Assigned user ID').optional(),
-    due_date: z.preprocess(parseDate, z.date({ invalid_type_error: 'Invalid due date' })).optional(),
+    due_date: z.preprocess(parseDate, z.date({ message: 'Invalid due date' })).optional(),
     estimated_hours: taskHours('Estimated hours').optional(),
     actual_hours: taskHours('Actual hours').optional(),
     sort_order: z

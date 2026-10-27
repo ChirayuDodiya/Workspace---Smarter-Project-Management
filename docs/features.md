@@ -23,6 +23,7 @@ A detailed walkthrough of every feature in the Workspace - Smarter Project Manag
 15. [User Management (Admin)](#15-user-management-admin)
 16. [Rate Limiting](#16-rate-limiting)
 17. [HTTP Caching (ETag)](#17-http-caching-etag)
+18. [AI Assistant & Retrieval-Augmented Generation (RAG)](#18-ai-assistant--retrieval-augmented-generation-rag)
 
 ---
 
@@ -453,3 +454,43 @@ The `etagMiddleware` (applied to all `GET` routes) intercepts `res.send()` and:
 3. If the client sends `If-None-Match` with a matching ETag, the server returns **`304 Not Modified`** with an empty body instead.
 
 This is applied to resource-heavy endpoints like project lists, task lists, project details, and dashboard stats — saving bandwidth on repeated requests for unchanged data.
+
+---
+
+## 18. AI Assistant & Retrieval-Augmented Generation (RAG)
+
+### What it does
+An integrated AI assistant tab inside the Task Detail view (`AIChatTab`) that answers natural language questions based on documents uploaded to the project or task.
+
+### Who can use it
+Any authenticated user with permission to view the project and task.
+
+### Features
+
+**Task-Level Chat Interface (`AIChatTab`):**
+- Located alongside task comments, activity timeline, and attachments.
+- Provides interactive, chat-style Q&A scoped specifically to the current project and task.
+- Formats answers clearly and concisely without unnecessary markdown noise.
+
+**Supported Document Ingestion:**
+- Supports `.pdf`, `.txt`, `.md`, and `.docx` file formats.
+- When documents are uploaded via `TaskAttachments`, they are simultaneously forwarded to the AI microservice (`POST /api/v1/ai/upload`).
+
+**Asynchronous Background Ingestion (Redis Queue):**
+- File parsing and embedding generation run in the background via **Redis Queue (RQ)** (`worker.py`) to keep uploads non-blocking.
+- Heavy PDFs are handled with a `job_timeout` of up to 1 hour.
+- Upload responses immediately return `{ job_id, status: "processing" }`, allowing the client to poll job progress via `GET /api/v1/ai/job/:job_id`.
+
+**Document Chunking & Vector Indexing:**
+- Uses LangChain's `RecursiveCharacterTextSplitter` with `chunk_size = 1000` and `chunk_overlap = 200`.
+- Injects a header (`Source Document: <filename>`) into each text chunk to ensure queries mentioning filenames or document titles match reliably.
+- Embedded using HuggingFace's `sentence-transformers/all-MiniLM-L6-v2` into 384-dimensional dense vectors.
+- Stored and indexed in the **Qdrant** vector database under collection `workspace_documents` with Cosine distance metric.
+
+**Context-Filtered RAG Querying:**
+- Incoming queries (`POST /api/v1/ai/query`) filter Qdrant vectors dynamically using `metadata.project_id` and optional `metadata.task_id`. This prevents cross-project data leakage and ensures answers reflect only relevant context.
+- Retrieved chunks are combined into a structured system prompt and synthesized by **Groq** using the `openai/gpt-oss-120b` LLM at temperature 0.
+
+**Dedicated Rate Limiting:**
+- Authenticated via the user's `accessToken` HTTPOnly cookie.
+- Rate-limited using Redis to **6 AI requests per minute** per user, preventing LLM quota exhaustion and API abuse (`dependencies/rate_limiter.py`).

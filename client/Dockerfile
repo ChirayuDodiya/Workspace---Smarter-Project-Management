@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (needed for compiling TypeScript and building the React app)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy client source code
 COPY . .

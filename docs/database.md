@@ -16,12 +16,14 @@ This document covers the complete database design for the Workspace - Smarter Pr
    - [team_members](#35-team_members)
    - [activity_logs](#36-activity_logs)
    - [refresh_tokens](#37-refresh_tokens)
+   - [task_attachments](#38-task_attachments)
 4. [Enums](#4-enums)
 5. [Indexes](#5-indexes)
 6. [Foreign Keys & Cascade Rules](#6-foreign-keys--cascade-rules)
 7. [Soft Deletes](#7-soft-deletes)
 8. [Seed Data](#8-seed-data)
 9. [Migrations & Tooling](#9-migrations--tooling)
+10. [Vector Database (Qdrant)](#10-vector-database-qdrant)
 
 ---
 
@@ -33,7 +35,7 @@ This document covers the complete database design for the Workspace - Smarter Pr
 | ORM | Prisma 7 (adapter: `@prisma/adapter-mariadb`) |
 | Schema source | [`server/prisma/schema.prisma`](../server/prisma/schema.prisma) |
 | Reference DDL | [`script.sql`](../script.sql) |
-| Seed script | [`server/prisma/seed.js`](../server/prisma/seed.js) |
+| Seed script | [`server/prisma/seed.ts`](../server/prisma/seed.ts) |
 | Seed command | `npm run prisma:seed` (inside `/server`) |
 
 All tables use:
@@ -288,6 +290,40 @@ CREATE TABLE refresh_tokens (
 
 ---
 
+### 3.8 `task_attachments`
+
+Stores file attachments associated with tasks, linking database metadata with objects stored in MinIO S3 object storage.
+
+```sql
+CREATE TABLE task_attachments (
+    id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    task_id       INT UNSIGNED NOT NULL,
+    user_id       INT UNSIGNED NOT NULL,
+    filename      VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    mime_type     VARCHAR(100) NOT NULL,
+    size          INT UNSIGNED NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at    TIMESTAMP NULL,
+    CONSTRAINT fk_attachment_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    CONSTRAINT fk_attachment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
+
+| Column | Type | Nullable | Default | Notes |
+|---|---|---|---|---|
+| `id` | INT UNSIGNED | No | auto | Primary key |
+| `task_id` | INT UNSIGNED | No | — | FK → `tasks.id`; `CASCADE` on task delete |
+| `user_id` | INT UNSIGNED | No | — | FK → `users.id`; `CASCADE` on user delete |
+| `filename` | VARCHAR(255) | No | — | MinIO object key (`[slug]/task-[id]/[timestamp]-[name]`) |
+| `original_name` | VARCHAR(255) | No | — | Original uploaded file name |
+| `mime_type` | VARCHAR(100) | No | — | MIME content-type string |
+| `size` | INT UNSIGNED | No | — | Size in bytes |
+| `created_at` | TIMESTAMP | Yes | now() | Upload timestamp |
+| `deleted_at` | TIMESTAMP | Yes | NULL | Soft delete marker |
+
+---
+
 ## 4. Enums
 
 ### `users_role`
@@ -367,6 +403,12 @@ CREATE TABLE refresh_tokens (
 |---|---|---|
 | `fk_refresh_token_user` | `user_id` | FK join; lookup tokens per user |
 
+### `task_attachments`
+| Index Name | Columns | Purpose |
+|---|---|---|
+| `fk_attachment_task` | `task_id` | FK join; fast attachment lookups by task |
+| `fk_attachment_user` | `user_id` | FK join; lookup attachments by user |
+
 ---
 
 ## 6. Foreign Keys & Cascade Rules
@@ -383,12 +425,14 @@ CREATE TABLE refresh_tokens (
 | `fk_team_members_user` | `team_members` | `user_id` | `users` | `id` | **CASCADE** — memberships deleted with the user |
 | `fk_activity_logs_user` | `activity_logs` | `user_id` | `users` | `id` | **SET NULL** — log preserved; actor becomes anonymous |
 | `fk_refresh_token_user` | `refresh_tokens` | `user_id` | `users` | `id` | **CASCADE** — tokens deleted with the user |
+| `fk_attachment_task` | `task_attachments` | `task_id` | `tasks` | `id` | **CASCADE** — attachments deleted with the task |
+| `fk_attachment_user` | `task_attachments` | `user_id` | `users` | `id` | **CASCADE** — attachments deleted with the user |
 
 ---
 
 ## 7. Soft Deletes
 
-Six of the seven tables implement soft deletes using a `deleted_at TIMESTAMP NULL` column:
+Seven of the eight tables implement soft deletes using a `deleted_at TIMESTAMP NULL` column:
 
 | Table | Soft Delete? |
 |---|---|
@@ -397,6 +441,7 @@ Six of the seven tables implement soft deletes using a `deleted_at TIMESTAMP NUL
 | `tasks` | ✅ Yes |
 | `comments` | ✅ Yes |
 | `team_members` | ✅ Yes |
+| `task_attachments` | ✅ Yes |
 | `activity_logs` | ❌ No — append-only audit log |
 | `refresh_tokens` | ❌ No — pruned by cron or on user delete |
 
@@ -497,9 +542,51 @@ All three developers (IDs 7, 8, 9) are assigned to the first three projects (IDs
 | `npm run prisma:generate` | `prisma generate` | Regenerate the Prisma Client after schema changes |
 | `npm run prisma:push` | `prisma db push` | Push schema changes directly to DB without a migration file (dev only) |
 | `npm run prisma:migrate` | `prisma migrate dev` | Create and apply a new named migration |
-| `npm run prisma:seed` | `prisma db seed` | Run [`seed.js`](../server/prisma/seed.js) to insert test data |
+| `npm run prisma:seed` | `prisma db seed` | Run [`seed.ts`](../server/prisma/seed.ts) to insert test data |
 | `npm run prisma:reset` | `prisma migrate reset --force` | Drop all data, re-run all migrations, and re-seed |
 | `npm run prisma:studio` | `prisma studio` | Open the Prisma browser-based data explorer on port 5555 |
 | `npm run prisma:pull` | `prisma db pull` | Introspect the live DB and update `schema.prisma` |
 
 > The production Docker container runs `npx prisma migrate deploy` automatically on startup before the server process begins, ensuring the live database schema is always in sync with the codebase.
+
+---
+
+## 10. Vector Database (Qdrant)
+
+The application incorporates a vector database (**Qdrant**) alongside the MariaDB relational database to power semantic document search and Retrieval-Augmented Generation (RAG).
+
+### 10.1 Collection Overview
+
+| Property | Value |
+|---|---|
+| Collection Name | `workspace_documents` |
+| Vector Dimensions | `384` |
+| Distance Metric | `Cosine` |
+| Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` |
+| Storage Engine | In-memory with persistent storage mounted to volume (`qdrant_dev_data` / `qdrant_prod_data`) |
+
+### 10.2 Payload Schema
+
+Each point in Qdrant represents a 1000-character document chunk (with 200-character overlap) generated during document processing:
+
+```json
+{
+  "id": "c1613eb5-c49b-4e1b-9f6f-d38a0f025e12",
+  "vector": [0.034, -0.012, 0.056, "... 384 float dimensions ..."],
+  "payload": {
+    "page_content": "Source Document: specs.pdf\n\nArchitecture overview and requirement specifications...",
+    "metadata": {
+      "project_id": "project-1",
+      "task_id": "14",
+      "source_file": "specs.pdf"
+    }
+  }
+}
+```
+
+### 10.3 Vector Search & Filtering
+
+When querying the RAG pipeline via `POST /api/v1/ai/query`, queries perform cosine similarity searches restricted by metadata payload filters:
+
+- **Must match `metadata.project_id`:** strictly prevents searching across other projects' documents.
+- **Optional `metadata.task_id` match:** narrows contextual relevance when asked directly inside a specific task.

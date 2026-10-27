@@ -38,7 +38,7 @@ const projectCreateSchema = z.object({
         .optional(),
     //if start date is not provided, it will be set to the current date
     start_date: z
-        .preprocess(parseDate, z.date({ invalid_type_error: 'Invalid start date' }))
+        .preprocess(parseDate, z.date({ message: 'Invalid start date' }))
         .default(() => new Date()),
     end_date: z
         .preprocess((val) => {
@@ -48,7 +48,7 @@ const projectCreateSchema = z.object({
             return null;
         const parsed = new Date(val);
         return Number.isNaN(parsed.getTime()) ? val : parsed;
-    }, z.date({ invalid_type_error: 'Invalid end date' }).nullable())
+    }, z.date({ message: 'Invalid end date' }).nullable())
         .optional(),
     budget: z
         .string()

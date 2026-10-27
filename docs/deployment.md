@@ -27,8 +27,9 @@ Make sure the following are installed on your machine:
 | [Docker Compose](https://docs.docker.com/compose/) | v2+ | Multi-container orchestration |
 | [Node.js](https://nodejs.org/) | 20 LTS | Local dev server (dev mode only) |
 | [npm](https://www.npmjs.com/) | 9+ | Package manager (dev mode only) |
+| [Python](https://www.python.org/) | 3.11+ | AI microservice & RQ worker (dev mode only) |
 
-> Node.js and npm are only required for **development mode**. In production, everything runs inside Docker containers.
+> Node.js, npm, and Python are only required for **development mode**. In production, everything runs inside Docker containers.
 
 ---
 
@@ -68,6 +69,7 @@ EMAIL_FROM=your-email-id
 
 # Client/Frontend Configuration
 VITE_API_URL=http://localhost:5000/api/v1
+VITE_AI_API_URL=http://localhost:8000/api/v1/ai
 
 # MinIO Storage Configuration
 MINIO_ENDPOINT=minio
@@ -75,6 +77,11 @@ MINIO_PORT=9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET_NAME=workspace-attachments
+
+# AI & Vector Database Configuration
+QDRANT_URL=http://localhost:6333
+GROQ_API_KEY=your-groq-api-key
+VITE_AI_API_URL=http://localhost:8000/api/v1/ai
 ```
 
 ---
@@ -115,6 +122,11 @@ MINIO_PORT=9000
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET_NAME=workspace-attachments
+
+# AI & Vector Database Configuration
+QDRANT_URL=http://localhost:6333
+GROQ_API_KEY=your-groq-api-key
+VITE_AI_API_URL=http://localhost:8000/api/v1/ai
 ```
 
 ---
@@ -129,6 +141,7 @@ cp client/.env.example client/.env
 
 ```env
 VITE_API_URL=http://localhost:5000/api/v1
+VITE_AI_API_URL=http://localhost:8000/api/v1/ai
 ```
 
 ---
@@ -143,6 +156,8 @@ localhost:5000  ──►  Express Server   (local, nodemon)
 localhost:3307  ──►  MariaDB          (Docker container)
 localhost:6379  ──►  Redis            (Docker container)
 localhost:9000  ──►  MinIO Storage    (Docker container)
+localhost:6333  ──►  Qdrant Vector DB  (Docker container)
+localhost:8000  ──►  FastAPI AI Server (local, uvicorn)
 ```
 
 ### Step 1 — Start Infrastructure Containers
@@ -155,6 +170,7 @@ This starts:
 - `pm-mysql-dev` on host port `3307`
 - `pm-redis-dev` on host port `6379`
 - `pm-minio-dev` on host port `9000` & `9001`
+- `pm-qdrant-dev` on host port `6333`
 
 ---
 
@@ -195,6 +211,41 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+### Step 4 — Set Up & Run the AI Microservice (FastAPI & RQ)
+
+The AI service requires two concurrent processes: the FastAPI web server and the Redis Queue background worker.
+
+#### Terminal A — FastAPI Server:
+```bash
+cd AI
+
+# First time setup: create venv and install dependencies
+python -m venv .venv
+# On Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# On Linux/macOS: source .venv/bin/activate
+
+pip install -r requirements.txt
+
+# Start the FastAPI server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+The AI API is now accessible at `http://localhost:8000`.
+
+#### Terminal B — Background Worker:
+Open another terminal to process document parsing jobs asynchronously:
+```bash
+cd AI
+
+# Activate environment
+.\.venv\Scripts\Activate.ps1  # (Linux/macOS: source .venv/bin/activate)
+
+# Start the Redis Queue worker
+python worker.py
+```
 
 ---
 
@@ -323,6 +374,9 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 | `pm-minio-prod` | `minio/minio:latest` | `9000:9000`, `9001` | always | — |
 | `pm-server-prod` | `./server/Dockerfile` | `5000:5000` | always | mysql, redis, minio |
 | `pm-client-prod` | `./client/Dockerfile` | `80:80` | always | server |
+| `pm-qdrant-prod` | `qdrant/qdrant:latest` | internal (`6333`) | always | — |
+| `pm-ai-server-prod` | `./AI/Dockerfile` | `8000:8000` | always | redis, qdrant |
+| `pm-ai-worker-prod` | `./AI/Dockerfile` | internal | always | redis, qdrant |
 
 ### Development (`docker-compose.dev.yml`)
 
@@ -331,6 +385,7 @@ In production, the client container runs **Nginx** ([`client/nginx.conf`](../cli
 | `pm-mysql-dev` | `mariadb:10.11` | `3307:3306` | always |
 | `pm-redis-dev` | `redis:7-alpine` | `6379:6379` | always |
 | `pm-minio-dev` | `minio/minio:latest` | `9000:9000`, `9001:9001` | always |
+| `pm-qdrant-dev` | `qdrant/qdrant:latest` | `6333:6333` | always |
 
 ### Dockerfile Summaries
 

@@ -7,7 +7,7 @@ export const rateLimiterMiddleware = async (req, res, next) => {
     }
     try {
         let identifier;
-        let limit;
+        let limit = 20;
         let isGuest = true;
         const token = req.cookies?.accessToken;
         if (token) {

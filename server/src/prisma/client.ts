@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 // Fallback for when running from root
 dotenv.config();
 
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from '@prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 // If running natively on Windows, we're not inside the Linux Docker container,

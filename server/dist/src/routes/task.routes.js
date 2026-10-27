@@ -6,6 +6,7 @@ import { validateUpdateTask, validateChangeTaskStatus, validateAssignTask, valid
 import { validateCreateComment } from '../validators/comment.validator.js';
 import { loadTaskAndProject } from '../loaders/taskAndProject.loader.js';
 import { etagMiddleware } from '../middlewares/etag.middleware.js';
+import { uploadAttachment, uploadAttachmentMiddleware, getAttachments, deleteAttachment, } from '../controllers/task/attachments.controller.js';
 const router = express.Router();
 router.get('/:id', authMiddleware, loadTaskAndProject, etagMiddleware, showTask);
 router.get('/:id/activities', authMiddleware, loadTaskAndProject, etagMiddleware, listTaskActivities);
@@ -16,4 +17,8 @@ router.post('/reorder', authMiddleware, validateReorderTasks, reorderTasks);
 router.delete('/:id', authMiddleware, loadTaskAndProject, TaskPolicy.canDelete, deleteTask);
 router.get('/:id/comments', authMiddleware, loadTaskAndProject, etagMiddleware, listTaskComments);
 router.post('/:id/comments', authMiddleware, loadTaskAndProject, validateCreateComment, createTaskComment);
+// Attachments
+router.get('/:id/attachments', authMiddleware, loadTaskAndProject, getAttachments);
+router.post('/:id/attachments', authMiddleware, loadTaskAndProject, uploadAttachmentMiddleware, uploadAttachment);
+router.delete('/:id/attachments/:attachmentId', authMiddleware, loadTaskAndProject, deleteAttachment);
 export default router;

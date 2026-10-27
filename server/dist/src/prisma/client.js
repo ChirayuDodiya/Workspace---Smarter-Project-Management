@@ -1,12 +1,20 @@
-import 'dotenv/config';
-import { PrismaClient } from '../../generated/prisma/client.js';
+import dotenv from 'dotenv';
+import path from 'path';
+// Load .env from the root workspace folder first
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+// Fallback for when running from root
+dotenv.config();
+import { PrismaClient } from '@prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+// If running natively on Windows, we're not inside the Linux Docker container,
+// so we need to connect to the exposed localhost port instead of the internal docker hostname.
+const isLocal = process.platform === 'win32';
 const adapter = new PrismaMariaDb({
-    host: process.env.DATABASE_HOST || 'localhost',
-    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
+    host: isLocal ? 'localhost' : (process.env.DATABASE_HOST || 'localhost'),
+    port: isLocal ? 3307 : (process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306),
+    user: process.env.DATABASE_USER || 'root',
+    password: process.env.DATABASE_PASSWORD || '',
+    database: process.env.DATABASE_NAME || 'projectmanager',
     connectionLimit: 20, // Increased limit to prevent pool timeouts
 });
 const prisma = new PrismaClient({ adapter }).$extends({

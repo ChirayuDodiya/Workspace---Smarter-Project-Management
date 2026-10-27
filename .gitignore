@@ -3,3 +3,8 @@ temp.sql
 .env
 __pycache__/
 .venv/
+feature.md
+.agents/
+.archify/
+skills-lock.json
+questions.md

@@ -18,7 +18,8 @@ const host = isLocalCLI ? 'localhost' : (process.env.DATABASE_HOST || 'localhost
 const port = isLocalCLI ? '3307' : (process.env.DATABASE_PORT || '3306');
 const database = process.env.DATABASE_NAME || 'projectmanager';
 
-const url = `mysql://${user}:${password}@${host}:${port}/${database}`;
+const encodedPassword = encodeURIComponent(password);
+const url = `mysql://${user}:${encodedPassword}@${host}:${port}/${database}`;
 
 export default {
   schema: "prisma/schema.prisma",

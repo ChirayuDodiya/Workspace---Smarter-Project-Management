@@ -520,6 +520,40 @@ undefined
 
 
 ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+## End-point: list task attachments
+### Method: GET
+>```
+>{{pm}}/tasks/1/attachments
+>```
+
+### 🔑 Authentication authMiddleware
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+
+## End-point: upload task attachments
+### Method: POST
+>```
+>{{pm}}/tasks/1/attachments
+>```
+### Body (**form-data**)
+
+|Param|Type|Description|
+|---|---|---|
+|files|File (array)|Up to 10 files (max 50MB each)|
+
+### 🔑 Authentication authMiddleware
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+
+## End-point: delete task attachment
+### Method: DELETE
+>```
+>{{pm}}/tasks/1/attachments/3
+>```
+
+### 🔑 Authentication authMiddleware (Uploader, Admin, or Manager)
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
 # 📁 Collection: user 
 undefined 
 
@@ -569,6 +603,99 @@ undefined
 >```
 >{{pm}}/users/9/restore
 >```
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+# 📁 Collection: AI Service (FastAPI)
+
+## End-point: health check
+### Method: GET
+>```
+>{{ai}}/
+>```
+
+### Response
+```json
+{
+    "status": "ok",
+    "service": "AI RAG Backend"
+}
+```
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+
+## End-point: upload document
+### Method: POST
+>```
+>{{ai}}/api/v1/ai/upload
+>```
+
+### Body (**form-data**)
+
+|Param|Type|Description|
+|---|---|---|
+|project_id|Text|Project slug or ID (required)|
+|task_id|Text|Task ID (optional, scopes file to task)|
+|file|File|File upload (`.pdf`, `.txt`, `.md`, `.docx` allowed)|
+
+### 🔑 Authentication & Rate Limiting
+Requires `accessToken` cookie. Rate limited to 6 requests/minute.
+
+### Response
+```json
+{
+    "message": "Document uploaded and queued for processing",
+    "job_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "status": "processing"
+}
+```
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+
+## End-point: query RAG
+### Method: POST
+>```
+>{{ai}}/api/v1/ai/query
+>```
+
+### Body (**raw**)
+
+```json
+{
+    "project_id": "project-1",
+    "task_id": "1",
+    "question": "What are the project deliverables?"
+}
+```
+
+### 🔑 Authentication & Rate Limiting
+Requires `accessToken` cookie. Rate limited to 6 requests/minute.
+
+### Response
+```json
+{
+    "answer": "The project deliverables include..."
+}
+```
+
+⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
+
+## End-point: get job status
+### Method: GET
+>```
+>{{ai}}/api/v1/ai/job/3fa85f64-5717-4562-b3fc-2c963f66afa6
+>```
+
+### Response
+```json
+{
+    "job_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "status": "finished",
+    "result": {
+        "status": "success",
+        "chunks": 18
+    }
+}
+```
 
 ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃ ⁃
 _________________________________________________

@@ -115,6 +115,25 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
 CREATE INDEX fk_refresh_token_user ON refresh_tokens(user_id);
 
+CREATE TABLE IF NOT EXISTS task_attachments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    task_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    size INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    -- if task is deleted then attachment will also be deleted
+    CONSTRAINT fk_attachment_task FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    -- if user is deleted then attachment will also be deleted
+    CONSTRAINT fk_attachment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX fk_attachment_task ON task_attachments(task_id);
+CREATE INDEX fk_attachment_user ON task_attachments(user_id);
+
 
 -- seeder generator
 INSERT INTO users (name, email, password, role) VALUES

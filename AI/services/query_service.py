@@ -35,7 +35,8 @@ def query_rag(question: str, project_id: str, task_id: str = None):
         "You are an AI assistant for a project management tool. "
         "Use the following pieces of retrieved context from uploaded project/task files to answer the user's question. "
         "If you don't know the answer, just say that you don't know. "
-        "Keep the answer concise and helpful."
+        "Keep the answer concise and helpful. your response will be shown as whatsapp chat dimention so format message in that way. "
+        "Don't use any special characters in the answer."
         "\n\n"
         "{context}"
     )

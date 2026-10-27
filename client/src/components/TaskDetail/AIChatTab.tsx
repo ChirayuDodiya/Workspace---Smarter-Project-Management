@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { AI_API_URL } from '../../config/env';
 
 interface AIChatTabProps {
   taskId: number;
@@ -16,8 +17,7 @@ export default function AIChatTab({ taskId, projectSlug }: AIChatTabProps) {
   const [isLoading, setIsLoading] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-  // Use Vite env for AI backend URL or fallback to localhost:8000
-  const AI_API_URL = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api/v1/ai';
+
 
   const scrollToBottom = () => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });

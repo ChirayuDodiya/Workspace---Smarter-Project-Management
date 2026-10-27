@@ -90,6 +90,7 @@ services:
     restart: always
     depends_on:
       - server
+      - ai-server
 
   qdrant:
     image: qdrant/qdrant:latest

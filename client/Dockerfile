@@ -12,8 +12,9 @@ RUN npm ci --legacy-peer-deps
 # Copy client source code
 COPY . .
 
-# Set environment variables for the build
+# Set environment variables for the production build
 ENV VITE_API_URL=/api/v1
+ENV VITE_AI_API_URL=/api/v1/ai
 ENV VITE_SOCKET_URL=""
 
 # Build production bundle

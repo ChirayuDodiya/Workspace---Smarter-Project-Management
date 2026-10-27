@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Paperclip, Download, Trash2, File, Upload, Loader2 } from 'lucide-react';
 import api from '../../services/api';
+import { AI_API_URL } from '../../config/env';
 
 interface Attachment {
   id: number;
@@ -74,7 +75,7 @@ export function TaskAttachments({ taskId, currentUser }: TaskAttachmentsProps) {
       await fetchAttachments();
 
       // 2. Upload to AI backend if it's a supported document format
-      const aiApiUrl = import.meta.env.VITE_AI_API_URL || 'http://localhost:8000/api/v1/ai';
+      const aiApiUrl = AI_API_URL;
       const allowedExtensions = ['.pdf', '.txt', '.md', '.docx'];
       
       const aiUploadPromises = Array.from(files)
